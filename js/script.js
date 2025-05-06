@@ -14,55 +14,55 @@ const imageFolders = [
 
 // 하드코딩된 이미지 리스트
 const staticImageList = {
-    '/src/images/webp/shade-of-blue': [
-        '/src/images/webp/shade-of-blue/shade-of-blue_1-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_2-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_3-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_4-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_5-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_6-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_7-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_8-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_9-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_10-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_11-min.webp',
-        '/src/images/webp/shade-of-blue/shade-of-blue_12-min.webp'
+    '/src/images/photos/shade-of-blue': [
+        '/src/images/photos/shade-of-blue/shade-of-blue_1-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_2-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_3-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_4-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_5-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_6-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_7-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_8-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_9-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_10-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_11-min.webp',
+        '/src/images/photos/shade-of-blue/shade-of-blue_12-min.webp'
     ],
-    '/src/images/webp/the-faceless': [
-        '/src/images/webp/the-faceless/the-faceless_1-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_2-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_3-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_4-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_5-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_6-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_7-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_8-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_9-min.webp',
-        '/src/images/webp/the-faceless/the-faceless_10-min.webp'
+    '/src/images/photos/the-faceless': [
+        '/src/images/photos/the-faceless/the-faceless_1-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_2-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_3-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_4-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_5-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_6-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_7-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_8-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_9-min.webp',
+        '/src/images/photos/the-faceless/the-faceless_10-min.webp'
     ],
-    '/src/images/webp/glass-eye': [
-        '/src/images/webp/glass-eye/glass-eye_1-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_2-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_3-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_4-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_5-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_6-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_7-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_8-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_9-min.webp',
-        '/src/images/webp/glass-eye/glass-eye_10-min.webp'
+    '/src/images/photos/glass-eye': [
+        '/src/images/photos/glass-eye/glass-eye_1-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_2-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_3-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_4-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_5-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_6-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_7-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_8-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_9-min.webp',
+        '/src/images/photos/glass-eye/glass-eye_10-min.webp'
     ],
-    '/src/images/webp/imperfect-jeonju': [
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_1-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_2-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_3-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_4-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_5-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_6-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_7-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_8-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_9-min.webp',
-        '/src/images/webp/imperfect-jeonju/imperfect-jeonju_10-min.webp'
+    '/src/images/photos/imperfect-jeonju': [
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_1-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_2-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_3-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_4-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_5-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_6-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_7-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_8-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_9-min.webp',
+        '/src/images/photos/imperfect-jeonju/imperfect-jeonju_10-min.webp'
     ]
 };
 
@@ -165,10 +165,10 @@ function startGridColumnAnimation() {
 function loadFallbackImages() {
     // 하드코딩된 이미지 경로 (예시)
     const fallbackImages = [
-        { path: '/src/images/webp/shade-of-blue/shade-of-blue_1-min.webp', folder: 'shade-of-blue' },
-        { path: '/src/images/webp/the-faceless/the-faceless_1-min.webp', folder: 'the-faceless' },
-        { path: '/src/images/webp/glass-eye/glass-eye_1-min.webp', folder: 'glass-eye' },
-        { path: '/src/images/webp/imperfect-jeonju/imperfect-jeonju_1-min.webp', folder: 'imperfect-jeonju' }
+        { path: '/src/images/photos/shade-of-blue/shade-of-blue_1-min.webp', folder: 'shade-of-blue' },
+        { path: '/src/images/photos/the-faceless/the-faceless_1-min.webp', folder: 'the-faceless' },
+        { path: '/src/images/photos/glass-eye/glass-eye_1-min.webp', folder: 'glass-eye' },
+        { path: '/src/images/photos/imperfect-jeonju/imperfect-jeonju_1-min.webp', folder: 'imperfect-jeonju' }
     ];
     
     allImages = fallbackImages;

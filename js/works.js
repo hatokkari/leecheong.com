@@ -34,18 +34,18 @@ document.addEventListener('DOMContentLoaded', () => {
         'the-faceless': 'webp',
         'shade-of-blue': 'webp',
         'imperfect-jeonju': 'webp',
-        'glass-eye-book': 'jpg',
-        'shade-of-blue-book': 'jpg'
+        'glass-eye-book': 'webp',
+        'shade-of-blue-book': 'webp'
     };
 
     // 이미지 기본 경로 매핑
     const imagePath = {
-        'glass-eye': '/src/images/webp/',
-        'the-faceless': '/src/images/webp/',
-        'shade-of-blue': '/src/images/webp/',
-        'imperfect-jeonju': '/src/images/webp/',
-        'glass-eye-book': '/src/images/jpg/books/',
-        'shade-of-blue-book': '/src/images/jpg/books/'
+        'glass-eye': '/src/images/photos/',
+        'the-faceless': '/src/images/photos/',
+        'shade-of-blue': '/src/images/photos/',
+        'imperfect-jeonju': '/src/images/photos/',
+        'glass-eye-book': '/src/images/books/',
+        'shade-of-blue-book': '/src/images/books/'
     };
 
     // 각 프로젝트별 이미지 목록을 저장할 객체
@@ -84,12 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 프로젝트별 예상 이미지 수
         const expectedImageCount = {
-            'glass-eye': 100, // 실제 개수에 맞게 조정
-            'the-faceless': 30, 
-            'shade-of-blue': 30,
-            'imperfect-jeonju': 30,
+            'glass-eye': 202, // 실제 개수에 맞게 조정
+            'the-faceless': 51, 
+            'shade-of-blue': 67,
+            'imperfect-jeonju': 89,
             'glass-eye-book': 8,
-            'shade-of-blue-book': 6
+            'shade-of-blue-book': 7
         };
         
         // 이미지 경로 생성
