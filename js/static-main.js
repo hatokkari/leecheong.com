@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let columnCount = 1;
     let isInitialLoad = true;
     let gridAnimationInterval;
+    let shuffledImageList = []; // 셔플된 이미지 리스트 저장
+    let loadedImages = []; // 로딩된 이미지들 저장
+    let filterMode = 'blue'; // 색상 필터 상태: 'blue', 'grayscale', 'none'
     
     // DOM 요소
     const imageGrid = document.getElementById('image-grid');
@@ -12,7 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const galleryClose = document.getElementById('gallery-close');
     const galleryPrev = document.getElementById('gallery-prev');
     const galleryNext = document.getElementById('gallery-next');
-    const gridToggle = document.getElementById('grid-toggle');
+    const gridDecrease = document.getElementById('grid-decrease');
+    const gridIncrease = document.getElementById('grid-increase');
+    const colorFilterToggle = document.getElementById('color-filter-toggle');
     const loadingPage = document.getElementById('loading-page');
     
     // 이미지 경로 배열 (실제 파일명 모두 추가)
@@ -434,18 +439,64 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fisher-Yates 셔플
     function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
+        return shuffled;
     }
     
-    // 1. 이미지 그리드에 동적으로 이미지 삽입
+    // 이미지 미리 로딩
+    function preloadImages(imageList) {
+        return new Promise((resolve) => {
+            let loadedCount = 0;
+            const totalImages = imageList.length;
+            
+            // 로딩 인디케이터 표시
+            loadingIndicator.style.display = 'flex';
+            
+            imageList.forEach((src, index) => {
+                const img = new Image();
+                img.onload = () => {
+                    loadedImages[index] = {
+                        src: src,
+                        element: img,
+                        loaded: true
+                    };
+                    loadedCount++;
+                    
+                    // 모든 이미지가 로딩되면 resolve
+                    if (loadedCount === totalImages) {
+                        loadingIndicator.style.display = 'none';
+                        resolve();
+                    }
+                };
+                img.onerror = () => {
+                    // 로딩 실패 시에도 카운트 증가
+                    loadedImages[index] = {
+                        src: src,
+                        element: null,
+                        loaded: false
+                    };
+                    loadedCount++;
+                    
+                    if (loadedCount === totalImages) {
+                        loadingIndicator.style.display = 'none';
+                        resolve();
+                    }
+                };
+                img.src = src;
+            });
+        });
+    }
+    
+    // 1. 이미지 그리드에 동적으로 이미지 삽입 (개선된 버전)
     function renderImages() {
         imageGrid.innerHTML = '';
-        const images = [...imageList];
-        shuffle(images);
-        images.forEach(src => {
+        
+        // 셔플된 순서대로 이미지 삽입
+        shuffledImageList.forEach((src, index) => {
             const div = document.createElement('div');
             div.className = 'image-item';
             const img = document.createElement('img');
@@ -460,12 +511,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. 이미지 삽입 후, 갤러리/애니메이션/이벤트 연결
     let allImages = [];
     let currentImageIndex = 0;
+    
     function setupImageEvents() {
         const allImageItems = document.querySelectorAll('.image-item');
         allImages = Array.from(allImageItems).map(item => ({
             element: item,
             path: item.querySelector('img').src
         }));
+        
         allImageItems.forEach((imageItem, idx) => {
             const img = imageItem.querySelector('img');
             if (img.complete) {
@@ -519,8 +572,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function changeGridColumns(targetColumns = null) {
         if (targetColumns) {
             columnCount = targetColumns;
-        } else {
-            columnCount = columnCount >= 10 ? 1 : columnCount + 1;
         }
         
         // 그리드 클래스 업데이트 (loaded 클래스 유지)
@@ -543,16 +594,116 @@ document.addEventListener('DOMContentLoaded', () => {
         // 새로운 columns- 클래스 추가
         imageGrid.classList.add(`columns-${columnCount}`);
         
-        // 버튼 텍스트 업데이트
-        gridToggle.textContent = columnCount;
+        // 버튼 상태 업데이트
+        updateGridButtonStates();
+    }
+
+    // 화면 크기에 따른 최대 열 수 계산
+    function getMaxColumns() {
+        const screenWidth = window.innerWidth;
+        
+        if (screenWidth <= 360) {
+            return 2;
+        } else if (screenWidth <= 480) {
+            return 3;
+        } else if (screenWidth <= 576) {
+            return 4;
+        } else if (screenWidth <= 768) {
+            return 5;
+        } else if (screenWidth <= 992) {
+            return 6;
+        } else if (screenWidth <= 1200) {
+            return 7;
+        } else if (screenWidth <= 1400) {
+            return 8;
+        } else {
+            return 10;
+        }
+    }
+
+    // 그리드 버튼 상태 업데이트
+    function updateGridButtonStates() {
+        if (gridDecrease && gridIncrease) {
+            const maxColumns = getMaxColumns();
+            
+            // 최소값(1)에 도달하면 감소 버튼 비활성화
+            gridDecrease.disabled = columnCount <= 1;
+            
+            // 현재 화면 크기의 최대값에 도달하면 증가 버튼 비활성화
+            gridIncrease.disabled = columnCount >= maxColumns;
+            
+            // 현재 값이 최대값을 초과하면 조정
+            if (columnCount > maxColumns) {
+                columnCount = maxColumns;
+                changeGridColumns();
+            }
+        }
+    }
+
+    // 그리드 열 감소
+    function decreaseGridColumns() {
+        if (columnCount > 1) {
+            columnCount--;
+            changeGridColumns();
+        }
+    }
+
+    // 그리드 열 증가
+    function increaseGridColumns() {
+        const maxColumns = getMaxColumns();
+        if (columnCount < maxColumns) {
+            columnCount++;
+            changeGridColumns();
+        }
+    }
+
+    // 색상 필터 토글 (3단계: 블루 → 흑백 → 필터없음 → 블루)
+    function toggleColorFilter() {
+        // 필터 모드 순환
+        switch (filterMode) {
+            case 'blue':
+                filterMode = 'grayscale';
+                break;
+            case 'grayscale':
+                filterMode = 'none';
+                break;
+            case 'none':
+                filterMode = 'blue';
+                break;
+        }
+        
+        // 버튼 상태 업데이트
+        if (colorFilterToggle) {
+            colorFilterToggle.classList.remove('grayscale', 'no-filter');
+            if (filterMode === 'grayscale') {
+                colorFilterToggle.classList.add('grayscale');
+            } else if (filterMode === 'none') {
+                colorFilterToggle.classList.add('no-filter');
+            }
+        }
+        
+        // 모든 이미지에 필터 적용
+        const allImages = document.querySelectorAll('.image-item img');
+        allImages.forEach(img => {
+            // 기존 필터 클래스 제거
+            img.classList.remove('grayscale', 'no-filter');
+            
+            // 새로운 필터 적용
+            if (filterMode === 'grayscale') {
+                img.classList.add('grayscale');
+            } else if (filterMode === 'none') {
+                img.classList.add('no-filter');
+            }
+            // 'blue' 모드는 기본 필터가 적용됨 (클래스 없음)
+        });
     }
     
-    // 초기 로딩 애니메이션
+    // 초기 로딩 애니메이션 (개선된 버전)
     function startInitialAnimation() {
         // 로딩 페이지 표시
         loadingPage.style.display = 'flex';
         
-        // 이미지 로드가 완료되면 슬라이드 업 애니메이션 실행
+        // 2초 후 로딩 페이지를 올림 (이미지 로딩 완료와 관계없이)
         setTimeout(() => {
             loadingPage.classList.add('slide-up');
             
@@ -567,26 +718,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 그리드 열 변환 애니메이션 시작
                 startGridColumnAnimation();
             }, 1000);
-        }, 1800);
+        }, 2000); // 2초로 변경
+    }
+
+    // 백그라운드에서 이미지 로딩 진행
+    function preloadImagesInBackground() {
+        console.log(`🔄 백그라운드에서 ${shuffledImageList.length}개 이미지 로딩 시작...`);
+        
+        let loadedCount = 0;
+        const totalImages = shuffledImageList.length;
+
+        shuffledImageList.forEach((src, index) => {
+            const img = new Image();
+            img.onload = () => {
+                loadedImages[index] = {
+                    src: src,
+                    element: img,
+                    loaded: true
+                };
+                loadedCount++;
+                
+                // 진행률 로그 (20개마다)
+                if (loadedCount % 20 === 0 || loadedCount === totalImages) {
+                    const progress = ((loadedCount / totalImages) * 100).toFixed(1);
+                    console.log(`📸 백그라운드 로딩 진행률: ${progress}% (${loadedCount}/${totalImages})`);
+                }
+            };
+            img.onerror = () => {
+                loadedImages[index] = {
+                    src: src,
+                    element: null,
+                    loaded: false
+                };
+                loadedCount++;
+            };
+            img.src = src;
+        });
     }
     
     // 그리드 열 변환 애니메이션 시작
     function startGridColumnAnimation() {
         let currentColumn = 1;
+        const maxColumns = getMaxColumns();
         
-        // 2초 동안 1열부터 10열까지 순차적으로 변경
+        // 2초 동안 1열부터 최대 열까지 순차적으로 변경
         gridAnimationInterval = setInterval(() => {
             currentColumn++;
-            if (currentColumn > 10) {
+            if (currentColumn > maxColumns) {
                 clearInterval(gridAnimationInterval);
-                columnCount = 10; // 최종적으로 10열로 설정
-                changeGridColumns(10);
+                columnCount = maxColumns; // 최종적으로 최대 열로 설정
+                changeGridColumns(maxColumns);
                 isInitialLoad = false;
                 return;
             }
             
             changeGridColumns(currentColumn);
-        }, 2000 / 9); // 2초를 9단계로 나눔 (1->2->3->4->5->6->7->8->9->10)
+        }, 2000 / (maxColumns - 1)); // 2초를 단계로 나눔
     }
     
     // 이벤트 리스너 설정
@@ -614,13 +801,50 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // 그리드 열 수 변경 버튼
-        gridToggle.addEventListener('click', () => changeGridColumns());
+        // 그리드 열 수 변경 버튼들
+        gridDecrease.addEventListener('click', decreaseGridColumns);
+        gridIncrease.addEventListener('click', increaseGridColumns);
+        
+        // 색상 필터 토글 버튼
+        colorFilterToggle.addEventListener('click', toggleColorFilter);
+        
+        // 윈도우 리사이즈 이벤트
+        window.addEventListener('resize', handleWindowResize);
     }
     
-    // 페이지 초기화
-    renderImages();
-    setupImageEvents();
-    startInitialAnimation();
-    setupEventListeners();
+    // 윈도우 리사이즈 핸들러
+    function handleWindowResize() {
+        // 디바운싱을 위한 타이머
+        clearTimeout(window.resizeTimer);
+        window.resizeTimer = setTimeout(() => {
+            updateGridButtonStates();
+        }, 250);
+    }
+    
+    // 페이지 초기화 (개선된 버전)
+    async function initializePage() {
+        // 1. 이미지 리스트 셔플
+        shuffledImageList = shuffle(imageList);
+        
+        // 2. 초기 애니메이션 시작 (2초 후 로딩 페이지 올라감)
+        startInitialAnimation();
+        
+        // 3. 전체 이미지 그리드 렌더링 (기존 방식 유지)
+        renderImages();
+        
+        // 4. 이벤트 설정
+        setupImageEvents();
+        
+        // 5. 이벤트 리스너 설정
+        setupEventListeners();
+        
+        // 6. 백그라운드에서 이미지 로딩 진행
+        preloadImagesInBackground();
+        
+        // 7. 초기 버튼 상태 설정
+        updateGridButtonStates();
+    }
+    
+    // 페이지 초기화 실행
+    initializePage();
 }); 

@@ -54,71 +54,197 @@ document.addEventListener('DOMContentLoaded', () => {
     // 각 프로젝트별 현재 인덱스와 로드된 이미지 수 추적
     const projectState = {};
     
-    // 각 프로젝트 슬라이더 초기화
-    Object.keys(projectFolders).forEach(project => {
-        // 초기에는 빈 배열로 설정
-        projectImages[project] = [];
-        projectState[project] = {
-            currentIndex: 0,
-            loadedImages: 0,
-            loadedPaths: [] // 성공적으로 로드된 이미지 경로 추적
-        };
-        
-        // 이미지 목록 구성 및 슬라이더 초기화
-        loadImagesForProject(project);
-    });
+    // 로딩 상태 추적
+    const loadingState = {
+        totalProjects: Object.keys(projectFolders).length,
+        loadedProjects: 0,
+        isInitialized: false
+    };
 
-    // 프로젝트별 이미지 로드 함수
-    function loadImagesForProject(projectId) {
+    // 모든 프로젝트 이미지 동시 로딩 시작
+    initializeAllProjects();
+
+    // 모든 프로젝트 초기화 함수
+    async function initializeAllProjects() {
+        console.log('🚀 모든 프로젝트 이미지 로딩 시작...');
+        
+        // 모든 프로젝트의 이미지 목록을 동시에 생성
+        const projectPromises = Object.keys(projectFolders).map(project => {
+            return generateImageList(project);
+        });
+
+        // 모든 이미지 목록 생성 완료 대기
+        await Promise.all(projectPromises);
+        
+        // 모든 프로젝트의 이미지를 동시에 로딩
+        const loadingPromises = Object.keys(projectFolders).map(project => {
+            return loadImagesForProject(project);
+        });
+
+        // 모든 프로젝트 로딩 완료 대기
+        await Promise.all(loadingPromises);
+        
+        console.log('✅ 모든 프로젝트 이미지 로딩 완료!');
+        loadingState.isInitialized = true;
+    }
+
+    // 프로젝트별 이미지 목록 생성 함수
+    function generateImageList(projectId) {
+        return new Promise((resolve) => {
+            // 프로젝트별 예상 이미지 수
+            const expectedImageCount = {
+                'glass-eye': 202,
+                'the-faceless': 51, 
+                'shade-of-blue': 67,
+                'imperfect-jeonju': 89,
+                'glass-eye-book': 8,
+                'shade-of-blue-book': 7
+            };
+            
+            // 이미지 경로 생성
+            let imagePaths = [];
+            for (let i = 1; i <= expectedImageCount[projectId]; i++) {
+                if (projectId.includes('book')) {
+                    // books 섹션은 jpg 파일 사용, 파일명 형식이 다름
+                    imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/${projectFolders[projectId]}-${i.toString().padStart(2, '0')}-min.${imageFormat[projectId]}`);
+                } else {
+                    // photos 섹션은 webp 파일 사용
+                    imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/${projectFolders[projectId]}_${i}-min.${imageFormat[projectId]}`);
+                }
+            }
+            
+            // photos 섹션만 이미지 배열 섞기
+            if (!projectId.includes('book')) {
+                imagePaths = shuffleArray(imagePaths);
+            }
+            
+            // 프로젝트 이미지 목록에 저장
+            projectImages[projectId] = imagePaths;
+            
+            // 프로젝트 상태 초기화
+            projectState[projectId] = {
+                currentIndex: 0,
+                loadedImages: 0,
+                loadedPaths: [],
+                isLoaded: false
+            };
+            
+            resolve();
+        });
+    }
+
+    // 프로젝트별 이미지 로드 함수 (개선된 버전)
+    async function loadImagesForProject(projectId) {
+        return new Promise((resolve) => {
+            const galleryCol = document.querySelector(`.project-gallery-col[data-project="${projectId}"]`);
+            if (!galleryCol) {
+                resolve();
+                return;
+            }
+            
+            const sliderContainer = galleryCol.querySelector('.slider-container');
+            const prevBtn = galleryCol.querySelector('.prev-btn');
+            const nextBtn = galleryCol.querySelector('.next-btn');
+            
+            if (!sliderContainer || !prevBtn || !nextBtn) {
+                resolve();
+                return;
+            }
+
+            const imagePaths = projectImages[projectId];
+            if (!imagePaths || imagePaths.length === 0) {
+                resolve();
+                return;
+            }
+
+            // Books 섹션은 모든 이미지를 미리 로딩, Photos는 초기 5개만 로딩
+            const initialLoadCount = projectId.includes('book') ? imagePaths.length : 5;
+            
+            // 이미지 프리로딩 (Books 섹션용)
+            if (projectId.includes('book')) {
+                preloadImages(projectId, imagePaths).then(() => {
+                    // 모든 이미지가 로딩된 후 슬라이더에 추가
+                    addImagesToSlider(projectId, imagePaths);
+                    setupSliderControls(projectId, prevBtn, nextBtn);
+                    projectState[projectId].isLoaded = true;
+                    loadingState.loadedProjects++;
+                    console.log(`📚 ${projectId} 로딩 완료 (${imagePaths.length}개 이미지)`);
+                    resolve();
+                });
+            } else {
+                // Photos 섹션은 초기 이미지만 로딩
+                addImagesToSlider(projectId, imagePaths.slice(0, initialLoadCount));
+                setupSliderControls(projectId, prevBtn, nextBtn);
+                projectState[projectId].isLoaded = true;
+                loadingState.loadedProjects++;
+                console.log(`📸 ${projectId} 초기 로딩 완료 (${initialLoadCount}개 이미지)`);
+                resolve();
+            }
+        });
+    }
+
+    // 이미지 프리로딩 함수 (Books 섹션용)
+    function preloadImages(projectId, imagePaths) {
+        return new Promise((resolve) => {
+            let loadedCount = 0;
+            const totalImages = imagePaths.length;
+
+            imagePaths.forEach((path, index) => {
+                const img = new Image();
+                img.onload = () => {
+                    projectState[projectId].loadedPaths.push(path);
+                    loadedCount++;
+                    
+                    if (loadedCount === totalImages) {
+                        resolve();
+                    }
+                };
+                img.onerror = () => {
+                    console.warn(`⚠️ 이미지 로드 실패: ${path}`);
+                    loadedCount++;
+                    
+                    if (loadedCount === totalImages) {
+                        resolve();
+                    }
+                };
+                img.src = path;
+            });
+        });
+    }
+
+    // 슬라이더에 이미지 추가 함수
+    function addImagesToSlider(projectId, imagePaths) {
         const galleryCol = document.querySelector(`.project-gallery-col[data-project="${projectId}"]`);
         if (!galleryCol) return;
         
         const sliderContainer = galleryCol.querySelector('.slider-container');
-        const prevBtn = galleryCol.querySelector('.prev-btn');
-        const nextBtn = galleryCol.querySelector('.next-btn');
-        
-        if (!sliderContainer || !prevBtn || !nextBtn) return;
-        
-        // 이미지 배열
-        let imagePaths = [];
-        
-        // 프로젝트별 예상 이미지 수
-        const expectedImageCount = {
-            'glass-eye': 202, // 실제 개수에 맞게 조정
-            'the-faceless': 51, 
-            'shade-of-blue': 67,
-            'imperfect-jeonju': 89,
-            'glass-eye-book': 8,
-            'shade-of-blue-book': 7
-        };
-        
-        // 이미지 경로 생성
-        for (let i = 1; i <= expectedImageCount[projectId]; i++) {
-            if (projectId.includes('book')) {
-                // books 섹션은 jpg 파일 사용, 파일명 형식이 다름
-                imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/${projectFolders[projectId]}-${i.toString().padStart(2, '0')}-min.${imageFormat[projectId]}`);
+        if (!sliderContainer) return;
+
+        // 기존 이미지 제거
+        sliderContainer.innerHTML = '';
+
+        imagePaths.forEach((path, index) => {
+            const img = document.createElement('img');
+            img.src = path;
+            img.alt = `${projectId} image ${index + 1}`;
+            img.dataset.index = index;
+            
+            // 첫 번째 이미지만 표시
+            if (index === 0) {
+                img.style.display = 'block';
             } else {
-                // photos 섹션은 webp 파일 사용
-                imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/${projectFolders[projectId]}_${i}-min.${imageFormat[projectId]}`);
+                img.style.display = 'none';
             }
-        }
-        
-        // photos 섹션만 이미지 배열 섞기
-        if (!projectId.includes('book')) {
-            imagePaths = shuffleArray(imagePaths);
-        }
-        // books 섹션은 순서대로 표시
-        
-        // 프로젝트 이미지 목록에 저장
-        projectImages[projectId] = imagePaths;
-        
-        // 성공적으로 로드된 이미지 경로 추적
-        projectState[projectId].loadedPaths = [];
-        
-        // 이미지 로드 - books는 모두 로드, photos는 최초 5개만 로드
-        const initialLoadCount = projectId.includes('book') ? expectedImageCount[projectId] : 5;
-        loadMoreImages(projectId, initialLoadCount);
-        
+            
+            sliderContainer.appendChild(img);
+        });
+
+        projectState[projectId].loadedImages = imagePaths.length;
+        updateSlider(projectId);
+    }
+
+    // 슬라이더 컨트롤 설정 함수
+    function setupSliderControls(projectId, prevBtn, nextBtn) {
         // 이전 이미지 버튼 클릭 이벤트
         prevBtn.addEventListener('click', () => {
             if (projectState[projectId].currentIndex > 0) {
@@ -129,20 +255,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 다음 이미지 버튼 클릭 이벤트
         nextBtn.addEventListener('click', () => {
-            if (projectImages[projectId].length > 0 && 
-                projectState[projectId].currentIndex < projectState[projectId].loadedImages - 1) {
+            if (projectState[projectId].currentIndex < projectState[projectId].loadedImages - 1) {
                 projectState[projectId].currentIndex++;
                 updateSlider(projectId);
                 
-                // 끝에 가까워지면 더 많은 이미지 로드 (books 섹션은 이미 모두 로드됨)
-                if (!projectId.includes('book') && projectState[projectId].currentIndex >= projectState[projectId].loadedImages - 2) {
+                // Photos 섹션에서 끝에 가까워지면 더 많은 이미지 로드
+                if (!projectId.includes('book') && 
+                    projectState[projectId].currentIndex >= projectState[projectId].loadedImages - 2) {
                     loadMoreImages(projectId, 3);
                 }
             }
         });
     }
     
-    // 이미지 로드 함수
+    // 추가 이미지 로드 함수 (Photos 섹션용)
     function loadMoreImages(projectId, count) {
         const galleryCol = document.querySelector(`.project-gallery-col[data-project="${projectId}"]`);
         if (!galleryCol) return;
@@ -152,79 +278,26 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const currentLoadedCount = sliderContainer.children.length;
         const projectImageList = projectImages[projectId];
-        let imagesAdded = 0;
-        let successfullyLoadedCount = 0;
         
-        // 아직 로드되지 않은 이미지 중에서 count만큼 로드
-        for (let i = 0; i < count; i++) {
+        // 이미 모든 이미지가 로드된 경우
+        if (currentLoadedCount >= projectImageList.length) return;
+        
+        // 추가로 로드할 이미지 수 계산
+        const remainingImages = projectImageList.length - currentLoadedCount;
+        const imagesToLoad = Math.min(count, remainingImages);
+        
+        for (let i = 0; i < imagesToLoad; i++) {
             const index = currentLoadedCount + i;
-            if (index < projectImageList.length) {
-                const img = document.createElement('img');
-                img.src = projectImageList[index];
-                img.alt = `${projectId} image ${index + 1}`;
-                img.loading = 'lazy'; // 지연 로딩 적용
-                img.dataset.index = index; // 이미지 인덱스 저장
-                
-                // 첫 번째 이미지는 바로 표시, 나머지는 숨김
-                if (currentLoadedCount === 0 && i === 0) {
-                    img.style.display = 'block';
-                } else {
-                    img.style.display = 'none';
-                }
-                
-                // 이미지가 로드되면 처리
-                img.onload = function() {
-                    // 성공적으로 로드된 이미지 경로 저장
-                    projectState[projectId].loadedPaths.push(projectImageList[index]);
-                    successfullyLoadedCount++;
-                    
-                    // 이미지 로드 완료
-                    if (currentLoadedCount === 0 && i === 0 && sliderContainer.children.length === 1) {
-                        // 첫 이미지가 로드되면 보이게 설정
-                        img.style.display = 'block';
-                    }
-                };
-                
-                img.onerror = function() {
-                    // 이미지 로드 실패 처리
-                    console.error(`Failed to load image: ${projectImageList[index]}`);
-                    
-                    // 성공적으로 로드된 이미지가 있는 경우, 그 중 하나로 대체
-                    if (projectState[projectId].loadedPaths.length > 0) {
-                        // 성공적으로 로드된 이미지 중 랜덤하게 하나 선택
-                        const randomIndex = Math.floor(Math.random() * projectState[projectId].loadedPaths.length);
-                        const replacementSrc = projectState[projectId].loadedPaths[randomIndex];
-                        
-                        console.log(`Replacing with: ${replacementSrc}`);
-                        img.src = replacementSrc;
-                        
-                        // 첫 번째 이미지인 경우 표시
-                        if (currentLoadedCount === 0 && i === 0) {
-                            img.style.display = 'block';
-                        }
-                    } else {
-                        // 아직 성공적으로 로드된 이미지가 없는 경우, 더미 이미지 사용
-                        img.src = 'https://dummyimage.com/600x400/cccccc/ffffff&text=Loading...';
-                        
-                        // 첫 번째 이미지인 경우 표시
-                        if (currentLoadedCount === 0 && i === 0) {
-                            img.style.display = 'block';
-                        }
-                    }
-                };
-                
-                sliderContainer.appendChild(img);
-                imagesAdded++;
-            }
+            const img = document.createElement('img');
+            img.src = projectImageList[index];
+            img.alt = `${projectId} image ${index + 1}`;
+            img.style.display = 'none';
+            img.dataset.index = index;
+            
+            sliderContainer.appendChild(img);
         }
         
-        // 로드된 이미지 수 업데이트
-        projectState[projectId].loadedImages = currentLoadedCount + imagesAdded;
-        
-        // 첫 이미지가 로드되면 슬라이더 초기화
-        if (currentLoadedCount === 0 && imagesAdded > 0) {
-            updateSlider(projectId);
-        }
+        projectState[projectId].loadedImages = currentLoadedCount + imagesToLoad;
     }
     
     // 슬라이더 업데이트 함수
