@@ -262,4 +262,20 @@ main {
         font-size: 2.0rem;
 
     }
+    .submenu-item2 {
+        display: block;
+        width: 100%;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        height: 100%;
+    }
+    .leftalign {
+        text-align: left;
+    }
+    .rightalign {
+        text-align: left;
+    }
+    .centeralign {
+        text-align: left;
+    }
 }
