@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <!-- 기본 메타 태그 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="이청의 포트폴리오 웹사이트">
@@ -8,17 +9,17 @@
     <title>이청 - 포트폴리오</title>
     
     <!-- 파비콘 -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
-    <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico">
-    <link rel="shortcut icon" href="/favicons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/src/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/src/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/src/favicons/favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="/src/favicons/favicon.ico">
+    <link rel="shortcut icon" href="/src/favicons/favicon.ico">
     <meta name="theme-color" content="#ffffff">
     
     <!-- OpenGraph 메타 태그 -->
     <meta property="og:title" content="이청 - 포트폴리오">
     <meta property="og:description" content="이청의 포트폴리오 웹사이트">
-    <meta property="og:image" content="/favicons/opengraph.png">
+    <meta property="og:image" content="/src/favicons/opengraph.png">
     <meta property="og:url" content="https://leecheong.com">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="이청 LEECHEONG">
@@ -27,12 +28,14 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="이청 - 포트폴리오">
     <meta name="twitter:description" content="이청의 포트폴리오 웹사이트">
-    <meta name="twitter:image" content="/favicons/opengraph.png">
+    <meta name="twitter:image" content="/src/favicons/opengraph.png">
     
     <!-- CSS 파일 연결 -->
     <link rel="stylesheet" href="/css/style.css">
     <link href="css/multilingual.css" rel="stylesheet" />
+    <!-- Adobe Typekit 폰트 -->
     <link rel="stylesheet" href="https://use.typekit.net/umq6buz.css">
+    <!-- Adobe Typekit 폰트 로딩 스크립트 -->
     <script>
         (function(d) {
           var config = {
@@ -46,18 +49,21 @@
 
 </head>
 <body>
-    <!-- 로딩 페이지 -->
+    <!-- 초기 로딩 화면 -->
     <div class="loading-page" id="loading-page">
-        <img src="/svg/SVG/titlelogo-horizontal-white.svg" alt="이청 로고" class="loading-logo">
+        <img src="/src/SVG/titlelogo-horizontal-white.svg" alt="이청 로고" class="loading-logo">
     </div>
 
+    <!-- 헤더 영역 -->
     <header>
         <div class="header-container">
+            <!-- 사이트 로고 -->
             <h1 class="site-title">
                 <a href="/">
-                    <img src="/svg/SVG/titlelogo-horizontal-black.svg" alt="이청 로고" class="site-logo">
+                    <img src="/src/SVG/titlelogo-horizontal-black.svg" alt="이청 로고" class="site-logo">
                 </a>
             </h1>
+            <!-- 네비게이션 메뉴 -->
             <div class="header-controls">
                 <nav>
                     <ul>
@@ -69,43 +75,50 @@
         </div>
     </header>
 
+    <!-- 메인 콘텐츠 영역 -->
     <main>
+        <!-- 이미지 그리드 (동적으로 생성됨) -->
         <div class="image-grid columns-1" id="image-grid">
-            <!-- JS에서 동적으로 이미지가 삽입됩니다. -->
+            <!-- JavaScript에서 동적으로 이미지가 삽입됩니다. -->
         </div>
+        <!-- 이미지 로딩 인디케이터 -->
         <div class="loading-indicator" id="loading-indicator">
             <div class="spinner"></div>
         </div>
     </main>
 
+    <!-- 푸터 영역 -->
     <footer class="multilingual">
         <div class="footer-container multilingual">
             <p>&copy; 2025 이청. ALL RIGHTS RESERVED.</p>
         </div>
     </footer>
 
-    <!-- 갤러리 뷰 모달 -->
+    <!-- 이미지 갤러리 모달 -->
     <div class="gallery-modal" id="gallery-modal">
         <div class="gallery-overlay"></div>
         <div class="gallery-container">
+            <!-- 갤러리 컨트롤 버튼들 -->
             <button class="gallery-close" id="gallery-close">&times;</button>
-            <button class="gallery-prev" id="gallery-prev">&#10094;</button>
-            <button class="gallery-next" id="gallery-next">&#10095;</button>
+            <button class="gallery-prev" id="gallery-prev">◀</button>
+            <button class="gallery-next" id="gallery-next">▶</button>
+            <!-- 갤러리 이미지 컨테이너 -->
             <div class="gallery-image-container">
                 <img id="gallery-image" src="" alt="갤러리 이미지">
             </div>
         </div>
     </div>
 
-    <!-- 그리드 토글 버튼 -->
+    <!-- 그리드 열 수 조절 버튼 -->
     <div class="grid-controls">
         <button id="grid-toggle" class="grid-btn">1</button>
     </div>
 
     <!-- JavaScript 파일 연결 -->
     <script src="/js/static-main.js"></script>
-    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-3.7.1.min.js"></script>
     <script src="js/jquery.multilingual.min.js"></script>
+    <!-- 다국어 지원 초기화 -->
     <script>
         $(function() {
           $('.multilingual').multilingual(['ko', 'en', 'num', 'punct']);
