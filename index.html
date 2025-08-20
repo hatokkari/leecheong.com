@@ -67,8 +67,8 @@
             <div class="header-controls">
                 <nav>
                     <ul>
-                        <li><h2><a href="/info/about.html">INFO</a></h2></li>
-                        <li><h2><a href="/works/works.html">WORKS</a></h2></li>
+                        <li><h2><a href="/info/">INFO</a></h2></li>
+                        <li><h2><a href="/works/">WORKS</a></h2></li>
                     </ul>
                 </nav>
             </div>
@@ -109,9 +109,18 @@
         </div>
     </div>
 
-    <!-- 그리드 열 수 조절 버튼 -->
-    <div class="grid-controls">
-        <button id="grid-toggle" class="grid-btn">1</button>
+    <!-- 하단 컨트롤 버튼들 -->
+    <div class="bottom-controls">
+        <!-- 그리드 열 수 감소 버튼 -->
+        <button id="grid-decrease" class="grid-btn decrease-btn">−</button>
+        
+        <!-- 색상 필터 토글 버튼 -->
+        <button id="color-filter-toggle" class="color-filter-btn">
+            <div class="filter-icon"></div>
+        </button>
+        
+        <!-- 그리드 열 수 증가 버튼 -->
+        <button id="grid-increase" class="grid-btn increase-btn">+</button>
     </div>
 
     <!-- JavaScript 파일 연결 -->
