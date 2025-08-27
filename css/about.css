@@ -52,6 +52,13 @@ h3 .en {
     padding-bottom: 0;
     height: 100%;
 }
+.submenu-item:hover {
+    text-align: center;
+    width: 100%;
+    color: navy;
+    text-shadow: none;
+    transition: .6s;
+}
 .submenu-btn {
     text-align: center;
     width: 100%;
@@ -61,11 +68,51 @@ h3 .en {
 .left{
    border-right: 1px solid black;
 }
-.submenu-item :hover{
+
+.active {
     text-align: center;
     width: 100%;
     color: black;
     text-shadow: none;
+}
+
+.submenu-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.submenu {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+.submenu-item {
+display: block;
+    width: 100%;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    height: 100%;
+}
+.submenu-btn {
+    text-align: center;
+    width: 100%;
+    color: white;
+    text-shadow: -1px 0px black, 0px 1px black, 1px 0px black, 0px -1px black;
+}
+.left {
+   border-right: 1px solid black;
+}
+.submenu-item :hover {
+    text-align: center;
+    width: 100%;
+    color: navy;
+    text-shadow: none;
+    transition: .6s;
 }
 .active {
     text-align: center;

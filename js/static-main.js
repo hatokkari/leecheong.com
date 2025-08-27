@@ -97,48 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
         "/src/images/photos/glass-eye/glass-eye_163-min.webp",
         "/src/images/photos/glass-eye/glass-eye_164-min.webp",
         "/src/images/photos/glass-eye/glass-eye_165-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_166-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_167-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_168-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_169-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_17-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_170-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_171-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_172-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_173-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_174-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_175-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_176-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_177-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_178-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_179-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_18-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_180-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_181-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_182-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_183-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_184-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_185-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_186-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_187-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_188-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_189-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_19-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_190-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_191-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_192-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_193-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_194-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_195-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_196-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_197-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_198-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_199-min.webp",
         "/src/images/photos/glass-eye/glass-eye_2-min.webp",
         "/src/images/photos/glass-eye/glass-eye_20-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_200-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_201-min.webp",
-        "/src/images/photos/glass-eye/glass-eye_202-min.webp",
         "/src/images/photos/glass-eye/glass-eye_21-min.webp",
         "/src/images/photos/glass-eye/glass-eye_22-min.webp",
         "/src/images/photos/glass-eye/glass-eye_23-min.webp",
@@ -717,8 +677,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 그리드 열 변환 애니메이션 시작
                 startGridColumnAnimation();
-            }, 1000);
-        }, 2000); // 2초로 변경
+            }, 1500);
+        }, 3000); // 2초로 변경
     }
 
     // 백그라운드에서 이미지 로딩 진행
@@ -764,10 +724,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2초 동안 1열부터 최대 열까지 순차적으로 변경
         gridAnimationInterval = setInterval(() => {
             currentColumn++;
-            if (currentColumn > maxColumns) {
+            if (currentColumn > maxColumns-1) {
                 clearInterval(gridAnimationInterval);
-                columnCount = maxColumns; // 최종적으로 최대 열로 설정
-                changeGridColumns(maxColumns);
+                columnCount = maxColumns-1; // 최종적으로 최대 열로 설정
+                changeGridColumns(maxColumns-1);
                 isInitialLoad = false;
                 return;
             }

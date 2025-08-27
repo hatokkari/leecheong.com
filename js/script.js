@@ -149,10 +149,10 @@ function startGridColumnAnimation() {
     // 2초 동안 1열부터 10열까지 순차적으로 변경
     gridAnimationInterval = setInterval(() => {
         currentColumn++;
-        if (currentColumn > 10) {
+        if (currentColumn > 8) {
             clearInterval(gridAnimationInterval);
-            columnCount = 10; // 최종적으로 10열로 설정
-            changeGridColumns(10);
+            columnCount = 8; // 최종적으로 10열로 설정
+            changeGridColumns(8);
             isInitialLoad = false;
             return;
         }

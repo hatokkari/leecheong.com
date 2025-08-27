@@ -617,6 +617,12 @@ main {
     align-items: top;
     gap: 1rem;
 }
+.flex2column-spacebetween {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
+}
 .rightalign {
     text-align: right;
 }       
@@ -627,6 +633,15 @@ main {
     width: 100%;
         height: 100%;
 }
+
+.button-buy {
+   padding-right: 1rem;
+   text-decoration: underline;
+   text-underline-offset: .5rem;
+}
+
+
+
 /* 푸터 스타일 */
 footer {
     background-color: #fff;

@@ -17,7 +17,7 @@ span.ml-ko {
 
 span.ml-num {
   font-family: "neue-haas-grotesk-display", -apple-system, sans-serif;
-  font-weight: 600;
+  /* font-weight: 600; */
   /*below two lines are for baseline shift */
   position:relative;
   top:0;
@@ -62,7 +62,7 @@ h3 span.ml-en {
 h3 span.ml-ko {
   font-family: "pretendard", sans-serif;
   font-weight: 800;
-  font-size: 3.5rem;
+  font-size: 3.6rem;
   /*below two lines are for baseline shift */
   position:relative;
   top:0;

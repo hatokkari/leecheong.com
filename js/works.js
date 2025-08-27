@@ -93,11 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Promise((resolve) => {
             // 프로젝트별 예상 이미지 수
             const expectedImageCount = {
-                'glass-eye': 202,
+                'glass-eye': 165,
                 'the-faceless': 51, 
                 'shade-of-blue': 67,
                 'imperfect-jeonju': 89,
-                'glass-eye-book': 8,
+                'glass-eye-book': 18,
                 'shade-of-blue-book': 7
             };
             
@@ -105,8 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
             let imagePaths = [];
             for (let i = 1; i <= expectedImageCount[projectId]; i++) {
                 if (projectId.includes('book')) {
-                    // books 섹션은 jpg 파일 사용, 파일명 형식이 다름
-                    imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/${projectFolders[projectId]}-${i.toString().padStart(2, '0')}-min.${imageFormat[projectId]}`);
+                    // books 섹션은 webp 파일 사용, 파일명 형식이 다름
+                    if (projectId === 'glass-eye-book') {
+                        // glass-eye-book: glass-eye-book_1-min.webp 형식
+                        imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/glass-eye-book_${i}-min.${imageFormat[projectId]}`);
+                    } else if (projectId === 'shade-of-blue-book') {
+                        // shade-of-blue-book: shade-of-blue_1-min.webp 형식
+                        imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/shade-of-blue_${i}-min.${imageFormat[projectId]}`);
+                    }
                 } else {
                     // photos 섹션은 webp 파일 사용
                     imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/${projectFolders[projectId]}_${i}-min.${imageFormat[projectId]}`);
