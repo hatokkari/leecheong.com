@@ -704,6 +704,10 @@ footer {
     .image-grid.columns-6 {
         grid-template-columns: repeat(5, 1fr);
     }
+
+    .image-grid {
+        gap: 0.5rem;
+    }
     
     .gallery-container {
         width: 95%;
@@ -720,6 +724,13 @@ footer {
         font-size: 2rem;
         width: 36px;
         height: 36px;
+    }
+    .header-container {
+        height: 10.4vw;
+    }
+    .site-logo {
+        height: 100%;
+        width: auto;
     }
 }
 
