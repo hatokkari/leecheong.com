@@ -71,12 +71,15 @@ display: block;
 .left {
    border-right: 1px solid black;
 }
-.submenu-item :hover {
-    text-align: center;
-    width: 100%;
-    color: navy;
-    text-shadow: none;
-    transition: .6s;
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    .submenu-item :hover {
+        text-align: center;
+        width: 100%;
+        color: navy;
+        text-shadow: none;
+        transition: .6s;
+    }
 }
 .active {
     text-align: center;
@@ -128,9 +131,10 @@ main {
     z-index: 5;
     display: flex;
     flex-direction: column;
-    height: 59rem;
+    height: 60rem;
     padding-top: 1rem;
     padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .project-gallery-col {
@@ -168,7 +172,7 @@ main {
     font-size: 1rem;
     line-height: 1.5;
     overflow-y: scroll;
-    height: calc(100% - 6rem); /* 제목과 연도를 제외한 나머지 공간 */
+    height: calc(100% - 5rem); /* 제목과 연도를 제외한 나머지 공간 */
     padding-right: 1.3rem; /* 스크롤바 공간 확보 */
 }
 
@@ -240,8 +244,11 @@ main {
     padding-right: 1.5rem;
 }
 
-.prev-btn:hover, .next-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    .prev-btn:hover, .next-btn:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
 }
 
 .more-text {
@@ -291,9 +298,9 @@ main {
 
     /* 모바일에서 버튼 크기 조정 */
     .prev-btn, .next-btn {
-        width: 3rem;
+        width: 1.5rem;
         height: 100%;
-        font-size: 3rem;
+        font-size: 1.5rem;
     }
 
     .prev-btn {
@@ -341,6 +348,21 @@ main {
     h3 span.ml-ko {
         font-size: 2.0rem;
 
+    }
+    h4 span.ml-en {
+        font-family: "neue-haas-grotesk-display", -apple-system, sans-serif;
+        font-weight: 600;
+        letter-spacing: -0.1rem;
+        font-size: 2.1rem;
+        position: relative;
+        top: 0.04rem;
+    }
+    h4 span.ml-ko {
+        font-size: 2.0rem;
+
+    }
+    .project-year{
+        font-size: 1.2rem;
     }
     .submenu-item2 {
         display: block;

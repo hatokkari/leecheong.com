@@ -89,9 +89,12 @@ a {
 p a {
     text-decoration: underline;
 }
-a:hover {
-    color: navy;
-    transition: .6s;
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    a:hover {
+        color: navy;
+        transition: .6s;
+    }
 }
 /* 목록 기본 설정 */
 ul, ol {
@@ -292,9 +295,12 @@ nav h2 {
     justify-content: center;
 }
 
-.grid-btn:hover {
-    background-color: #333;
-    transform: scale(1.1);
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    .grid-btn:hover {
+        background-color: #333;
+        transform: scale(1.1);
+    }
 }
 
 .grid-btn:disabled {
@@ -318,8 +324,11 @@ nav h2 {
     position: relative;
 }
 
-.color-filter-btn:hover {
-    transform: scale(1.1);
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    .color-filter-btn:hover {
+        transform: scale(1.1);
+    }
 }
 
 .color-filter-btn.grayscale {
@@ -483,8 +492,11 @@ main {
     filter: none;
 }
 
-.image-item:hover img {
-    transform: scale(1.05);
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    .image-item:hover img {
+        transform: scale(1.05);
+    }
 }
 
 /* 이미지 비율에 따른 스타일 */
@@ -606,8 +618,11 @@ main {
     right: 20px;
 }
 
-.gallery-prev:hover, .gallery-next:hover, .gallery-close:hover {
-    opacity: 1;
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    .gallery-prev:hover, .gallery-next:hover, .gallery-close:hover {
+        opacity: 1;
+    }
 }
 
 .flex2column {

@@ -52,12 +52,15 @@ h3 .en {
     padding-bottom: 0;
     height: 100%;
 }
-.submenu-item:hover {
-    text-align: center;
-    width: 100%;
-    color: navy;
-    text-shadow: none;
-    transition: .6s;
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    .submenu-item:hover {
+        text-align: center;
+        width: 100%;
+        color: navy;
+        text-shadow: none;
+        transition: .6s;
+    }
 }
 .submenu-btn {
     text-align: center;
@@ -107,12 +110,15 @@ display: block;
 .left {
    border-right: 1px solid black;
 }
-.submenu-item :hover {
-    text-align: center;
-    width: 100%;
-    color: navy;
-    text-shadow: none;
-    transition: .6s;
+/* 데스크톱에서만 호버 효과 적용 */
+@media (min-width: 769px) {
+    .submenu-item :hover {
+        text-align: center;
+        width: 100%;
+        color: navy;
+        text-shadow: none;
+        transition: .6s;
+    }
 }
 .active {
     text-align: center;
