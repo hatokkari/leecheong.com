@@ -724,6 +724,17 @@ footer {
         height: 100%;
         width: auto;
     }
+    .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    nav ul {
+        margin-left: 1rem;
+    }
+    nav {
+        padding-top: 1.6vw;
+    }
 }
 
 @media (max-width: 576px) {
