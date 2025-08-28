@@ -482,15 +482,7 @@ main {
     filter: sepia(100%) hue-rotate(180deg) saturate(200%);
 }
 
-/* 그레이스케일 필터 적용 시 */
-.image-item img.grayscale {
-    filter: grayscale(100%);
-}
-
-/* 필터 없음 상태 */
-.image-item img.no-filter {
-    filter: none;
-}
+/* 필터는 JavaScript에서 동적으로 적용됩니다 */
 
 /* 데스크톱에서만 호버 효과 적용 */
 @media (min-width: 769px) {

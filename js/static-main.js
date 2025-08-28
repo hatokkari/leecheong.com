@@ -7,6 +7,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let loadedImages = []; // 로딩된 이미지들 저장
     let filterMode = 'blue'; // 색상 필터 상태: 'blue', 'grayscale', 'none'
     
+    // 모바일 최적화 변수
+    const isMobile = window.innerWidth <= 768;
+    const isSlowConnection = navigator.connection && 
+        (navigator.connection.effectiveType === 'slow-2g' || 
+         navigator.connection.effectiveType === '2g' ||
+         navigator.connection.effectiveType === '3g');
+    const isFastConnection = navigator.connection && 
+        (navigator.connection.effectiveType === '4g' || 
+         navigator.connection.effectiveType === '5g');
+    
+    // 네트워크 상태에 따른 로딩 수 조정
+    const initialLoadCount = isMobile ? (isSlowConnection ? 10 : 20) : 50;
+    const loadMoreCount = isMobile ? (isSlowConnection ? 5 : 10) : 20;
+    let currentLoadedCount = 0;
+    let isLoading = false;
+    let sequentialLoadingActive = false; // 순차적 로딩 활성화 상태
+    
     // DOM 요소
     const imageGrid = document.getElementById('image-grid');
     const loadingIndicator = document.getElementById('loading-indicator');
@@ -451,21 +468,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // 1. 이미지 그리드에 동적으로 이미지 삽입 (개선된 버전)
+    // 1. 이미지 그리드에 동적으로 이미지 삽입 (점진적 로딩 지원)
     function renderImages() {
         imageGrid.innerHTML = '';
         
-        // 셔플된 순서대로 이미지 삽입
-        shuffledImageList.forEach((src, index) => {
+        // 로드된 이미지만 그리드에 삽입
+        const loadedImageElements = loadedImages
+            .filter(img => img && img.loaded && img.element)
+            .map(img => img.element);
+        
+        loadedImageElements.forEach((img, index) => {
             const div = document.createElement('div');
             div.className = 'image-item';
-            const img = document.createElement('img');
-            img.src = src;
-            img.alt = '이청의 사진';
-            img.loading = 'lazy';
-            div.appendChild(img);
+            div.dataset.index = index;
+            
+            const imgClone = img.cloneNode(true);
+            imgClone.alt = '이청의 사진';
+            imgClone.loading = 'lazy';
+            imgClone.style.filter = getCurrentFilter();
+            div.appendChild(imgClone);
             imageGrid.appendChild(div);
         });
+        
+        // 현재 로드된 이미지 수 업데이트
+        currentLoadedCount = loadedImageElements.length;
     }
     
     // 2. 이미지 삽입 후, 갤러리/애니메이션/이벤트 연결
@@ -481,6 +507,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         allImageItems.forEach((imageItem, idx) => {
             const img = imageItem.querySelector('img');
+            
+            // 이미 loaded 클래스가 있는 경우 애니메이션 적용하지 않음
+            if (imageItem.classList.contains('loaded')) {
+                return;
+            }
+            
             if (img.complete) {
                 setTimeout(() => {
                     imageItem.classList.add('loaded');
@@ -553,6 +585,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 새로운 columns- 클래스 추가
         imageGrid.classList.add(`columns-${columnCount}`);
+        
+        // 그리드 변경 시 애니메이션 재실행 방지
+        const allImageItems = imageGrid.querySelectorAll('.image-item');
+        allImageItems.forEach(imageItem => {
+            if (!imageItem.classList.contains('loaded')) {
+                imageItem.classList.add('loaded');
+            }
+        });
         
         // 버튼 상태 업데이트
         updateGridButtonStates();
@@ -642,19 +682,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // 모든 이미지에 필터 적용
+        // 모든 이미지에 필터 적용 (점진적 로딩 지원)
         const allImages = document.querySelectorAll('.image-item img');
         allImages.forEach(img => {
-            // 기존 필터 클래스 제거
-            img.classList.remove('grayscale', 'no-filter');
-            
-            // 새로운 필터 적용
-            if (filterMode === 'grayscale') {
-                img.classList.add('grayscale');
-            } else if (filterMode === 'none') {
-                img.classList.add('no-filter');
+            img.style.filter = getCurrentFilter();
+        });
+        
+        // 필터 변경 시 애니메이션 재실행 방지
+        const allImageItems = document.querySelectorAll('.image-item');
+        allImageItems.forEach(imageItem => {
+            if (!imageItem.classList.contains('loaded')) {
+                imageItem.classList.add('loaded');
             }
-            // 'blue' 모드는 기본 필터가 적용됨 (클래스 없음)
         });
     }
     
@@ -663,7 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 로딩 페이지 표시
         loadingPage.style.display = 'flex';
         
-        // 2초 후 로딩 페이지를 올림 (이미지 로딩 완료와 관계없이)
+        // 1.5초 후 로딩 페이지를 올림 (모바일 최적화)
         setTimeout(() => {
             loadingPage.classList.add('slide-up');
             
@@ -677,44 +716,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 그리드 열 변환 애니메이션 시작
                 startGridColumnAnimation();
-            }, 1500);
-        }, 3000); // 2초로 변경
+            }, 1000);
+        }, 1500); // 모바일에서 더 빠른 로딩
     }
 
-    // 백그라운드에서 이미지 로딩 진행
-    function preloadImagesInBackground() {
-        console.log(`🔄 백그라운드에서 ${shuffledImageList.length}개 이미지 로딩 시작...`);
-        
-        let loadedCount = 0;
-        const totalImages = shuffledImageList.length;
 
-        shuffledImageList.forEach((src, index) => {
-            const img = new Image();
-            img.onload = () => {
-                loadedImages[index] = {
-                    src: src,
-                    element: img,
-                    loaded: true
-                };
-                loadedCount++;
-                
-                // 진행률 로그 (20개마다)
-                if (loadedCount % 20 === 0 || loadedCount === totalImages) {
-                    const progress = ((loadedCount / totalImages) * 100).toFixed(1);
-                    console.log(`📸 백그라운드 로딩 진행률: ${progress}% (${loadedCount}/${totalImages})`);
-                }
-            };
-            img.onerror = () => {
-                loadedImages[index] = {
-                    src: src,
-                    element: null,
-                    loaded: false
-                };
-                loadedCount++;
-            };
-            img.src = src;
-        });
-    }
     
     // 그리드 열 변환 애니메이션 시작
     function startGridColumnAnimation() {
@@ -789,8 +795,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. 초기 애니메이션 시작 (2초 후 로딩 페이지 올라감)
         startInitialAnimation();
         
-        // 3. 전체 이미지 그리드 렌더링 (기존 방식 유지)
-        renderImages();
+        // 3. 점진적 이미지 로딩 (모바일 최적화)
+        await loadImagesProgressively();
         
         // 4. 이벤트 설정
         setupImageEvents();
@@ -798,13 +804,289 @@ document.addEventListener('DOMContentLoaded', () => {
         // 5. 이벤트 리스너 설정
         setupEventListeners();
         
-        // 6. 백그라운드에서 이미지 로딩 진행
-        preloadImagesInBackground();
+        // 6. 스크롤 이벤트 리스너 추가 (무한 스크롤)
+        setupScrollListener();
         
         // 7. 초기 버튼 상태 설정
         updateGridButtonStates();
     }
     
+    // 점진적 이미지 로딩 함수
+    async function loadImagesProgressively() {
+        const connectionInfo = isSlowConnection ? '느린 네트워크' : '일반 네트워크';
+        console.log(`🚀 점진적 이미지 로딩 시작 (${isMobile ? '모바일' : '데스크톱'} 모드, ${connectionInfo})`);
+        console.log(`📊 초기 로딩: ${initialLoadCount}개, 추가 로딩: ${loadMoreCount}개`);
+        
+        // 초기 이미지만 먼저 로드
+        const initialImages = shuffledImageList.slice(0, initialLoadCount);
+        await loadImageBatch(initialImages, 0);
+        
+        // 초기 그리드 렌더링
+        renderImages();
+        
+        console.log(`✅ 초기 ${initialLoadCount}개 이미지 로딩 완료`);
+        
+        // 백그라운드에서 순차적 로딩 시작
+        startSequentialLoading();
+    }
+    
+    // 이미지 배치 로딩 함수
+    async function loadImageBatch(imagePaths, startIndex) {
+        return new Promise((resolve) => {
+            let loadedCount = 0;
+            const totalImages = imagePaths.length;
+            
+            if (totalImages === 0) {
+                resolve();
+                return;
+            }
+            
+            imagePaths.forEach((src, index) => {
+                const img = new Image();
+                
+                img.onload = () => {
+                    const actualIndex = startIndex + index;
+                    loadedImages[actualIndex] = {
+                        src: src,
+                        element: img,
+                        loaded: true
+                    };
+                    loadedCount++;
+                    
+                    // 진행률 로그 (10개마다)
+                    if (loadedCount % 10 === 0 || loadedCount === totalImages) {
+                        const progress = ((loadedCount / totalImages) * 100).toFixed(1);
+                        console.log(`📸 배치 로딩 진행률: ${progress}% (${loadedCount}/${totalImages})`);
+                    }
+                    
+                    if (loadedCount === totalImages) {
+                        resolve();
+                    }
+                };
+                
+                img.onerror = () => {
+                    console.warn(`⚠️ 이미지 로드 실패: ${src}`);
+                    loadedImages[startIndex + index] = {
+                        src: src,
+                        element: null,
+                        loaded: false
+                    };
+                    loadedCount++;
+                    
+                    if (loadedCount === totalImages) {
+                        resolve();
+                    }
+                };
+                
+                img.src = src;
+            });
+        });
+    }
+    
+    // 스크롤 리스너 설정
+    function setupScrollListener() {
+        let scrollTimeout;
+        
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                checkAndLoadMoreImages();
+            }, 100);
+        });
+    }
+    
+    // 순차적 로딩 시작
+    function startSequentialLoading() {
+        // 이미 모든 이미지가 로드되었거나 이미 로딩 중이면 중단
+        if (currentLoadedCount >= shuffledImageList.length || isLoading || sequentialLoadingActive) {
+            return;
+        }
+        
+        sequentialLoadingActive = true;
+        console.log(`🔄 순차적 로딩 시작 (현재: ${currentLoadedCount}/${shuffledImageList.length})`);
+        
+        // 백그라운드에서 순차적으로 로딩
+        loadNextBatch();
+    }
+    
+    // 다음 배치 로딩
+    async function loadNextBatch() {
+        if (isLoading || currentLoadedCount >= shuffledImageList.length) {
+            return;
+        }
+        
+        isLoading = true;
+        const startIndex = currentLoadedCount;
+        const endIndex = Math.min(currentLoadedCount + loadMoreCount, shuffledImageList.length);
+        const newImages = shuffledImageList.slice(startIndex, endIndex);
+        
+        console.log(`📥 순차적 로딩: ${startIndex + 1}~${endIndex} (${newImages.length}개)`);
+        
+        await loadImageBatch(newImages, startIndex);
+        currentLoadedCount = endIndex;
+        
+        // 그리드 업데이트
+        updateImageGrid();
+        
+        isLoading = false;
+        
+        const progress = ((currentLoadedCount / shuffledImageList.length) * 100).toFixed(1);
+        console.log(`✅ 순차적 로딩 완료. 총 ${currentLoadedCount}/${shuffledImageList.length}개 로드됨 (${progress}%)`);
+        
+        // 아직 로드할 이미지가 있으면 다음 배치 로딩
+        if (currentLoadedCount < shuffledImageList.length) {
+            // 네트워크 상태에 따른 지연 시간 설정
+            let delay;
+            if (isSlowConnection) {
+                delay = 2000; // 느린 네트워크에서는 더 긴 지연
+            } else if (isFastConnection) {
+                delay = 200; // 빠른 네트워크에서는 짧은 지연
+            } else {
+                delay = 500; // 일반 네트워크
+            }
+            
+            setTimeout(() => {
+                loadNextBatch();
+            }, delay);
+        } else {
+            sequentialLoadingActive = false;
+            console.log(`🎉 모든 이미지 로딩 완료!`);
+        }
+    }
+    
+    // 추가 이미지 로딩 체크 (스크롤 기반)
+    async function checkAndLoadMoreImages() {
+        if (isLoading || currentLoadedCount >= shuffledImageList.length) {
+            return;
+        }
+        
+        // 순차적 로딩이 활성화되어 있으면 스크롤 기반 로딩은 건너뛰기
+        if (sequentialLoadingActive) {
+            return;
+        }
+        
+        // 스크롤이 하단에 가까워지면 추가 로딩
+        const scrollPosition = window.scrollY + window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        if (scrollPosition >= documentHeight - 500) { // 500px 전에 로딩 시작
+            await loadMoreImages();
+        }
+    }
+    
+    // 추가 이미지 로딩 (스크롤 기반 - 순차적 로딩과 병행)
+    async function loadMoreImages() {
+        if (isLoading) return;
+        
+        // 이미 순차적 로딩으로 모든 이미지가 로드되었으면 스킵
+        if (currentLoadedCount >= shuffledImageList.length) {
+            return;
+        }
+        
+        isLoading = true;
+        const startIndex = currentLoadedCount;
+        const endIndex = Math.min(currentLoadedCount + loadMoreCount, shuffledImageList.length);
+        const newImages = shuffledImageList.slice(startIndex, endIndex);
+        
+        console.log(`📥 스크롤 기반 추가 로딩: ${startIndex + 1}~${endIndex} (${newImages.length}개)`);
+        
+        await loadImageBatch(newImages, startIndex);
+        currentLoadedCount = endIndex;
+        
+        // 그리드 업데이트
+        updateImageGrid();
+        
+        isLoading = false;
+        
+        console.log(`✅ 스크롤 기반 로딩 완료. 총 ${currentLoadedCount}/${shuffledImageList.length}개 로드됨`);
+        
+        // 아직 로드할 이미지가 있으면 순차적 로딩 재시작
+        if (currentLoadedCount < shuffledImageList.length) {
+            setTimeout(() => {
+                loadNextBatch();
+            }, 100);
+        }
+    }
+    
+    // 현재 필터 상태 반환
+    function getCurrentFilter() {
+        switch (filterMode) {
+            case 'grayscale':
+                return 'grayscale(100%)';
+            case 'none':
+                return 'none';
+            default:
+                return 'sepia(100%) hue-rotate(180deg) saturate(200%)';
+        }
+    }
+    
+    // 새로 추가된 이미지들에만 이벤트 설정
+    function setupNewImageEvents(startIndex) {
+        const newImageItems = imageGrid.querySelectorAll('.image-item');
+        const newItems = Array.from(newImageItems).slice(startIndex);
+        
+        newItems.forEach((imageItem) => {
+            const img = imageItem.querySelector('img');
+            
+            // 새 이미지에 애니메이션 적용
+            if (img.complete) {
+                setTimeout(() => {
+                    imageItem.classList.add('loaded');
+                }, Math.random() * 500);
+            } else {
+                img.onload = function() {
+                    setTimeout(() => {
+                        imageItem.classList.add('loaded');
+                    }, Math.random() * 500);
+                };
+            }
+            
+            // 클릭 이벤트 추가
+            imageItem.addEventListener('click', () => {
+                openGallery(img.src);
+            });
+        });
+        
+        // allImages 배열 업데이트 (새 이미지들만 추가)
+        const newImageData = newItems.map(item => ({
+            element: item,
+            path: item.querySelector('img').src
+        }));
+        
+        allImages = allImages.concat(newImageData);
+    }
+    
+    // 이미지 그리드 업데이트 (기존 이미지 유지, 새 이미지만 추가)
+    function updateImageGrid() {
+        const loadedImageElements = loadedImages
+            .filter(img => img && img.loaded && img.element)
+            .map(img => img.element);
+        
+        // 현재 그리드에 있는 이미지 수 확인
+        const currentGridItems = imageGrid.querySelectorAll('.image-item');
+        const currentCount = currentGridItems.length;
+        
+        // 새로 추가할 이미지만 처리
+        const newImages = loadedImageElements.slice(currentCount);
+        
+        // 새 이미지들만 그리드에 추가
+        newImages.forEach((img, index) => {
+            const actualIndex = currentCount + index;
+            const imageItem = document.createElement('div');
+            imageItem.className = 'image-item';
+            imageItem.dataset.index = actualIndex;
+            
+            const imgClone = img.cloneNode(true);
+            imgClone.style.filter = getCurrentFilter();
+            imageItem.appendChild(imgClone);
+            
+            imageGrid.appendChild(imageItem);
+        });
+        
+        // 새로 추가된 이미지들에만 이벤트 설정
+        setupNewImageEvents(currentCount);
+    }
+    
     // 페이지 초기화 실행
     initializePage();
-}); 
+});
