@@ -112,15 +112,23 @@
     <!-- 하단 컨트롤 버튼들 -->
     <div class="bottom-controls">
         <!-- 그리드 열 수 감소 버튼 -->
-        <button id="grid-decrease" class="grid-btn decrease-btn">−</button>
+        <button id="grid-decrease" class="grid-btn decrease-btn">
+            <img src="/src/SVG/web-button/button_button-left-minus-01-on.svg" alt="감소" class="btn-svg active">
+            <img src="/src/SVG/web-button/button_button-left-minus-02-off.svg" alt="감소 비활성" class="btn-svg disabled">
+        </button>
         
         <!-- 색상 필터 토글 버튼 -->
         <button id="color-filter-toggle" class="color-filter-btn">
-            <div class="filter-icon"></div>
+            <img src="/src/SVG/web-button/button_button-middle-filter-01-blue.svg" alt="블루 필터" class="filter-svg blue">
+            <img src="/src/SVG/web-button/button_button-middle-filter-02-black.svg" alt="흑백 필터" class="filter-svg grayscale">
+            <img src="/src/SVG/web-button/button_button-middle-filter-03-color.svg" alt="컬러 필터" class="filter-svg color">
         </button>
         
         <!-- 그리드 열 수 증가 버튼 -->
-        <button id="grid-increase" class="grid-btn increase-btn">+</button>
+        <button id="grid-increase" class="grid-btn increase-btn">
+            <img src="/src/SVG/web-button/button_button-right-plus-01-on.svg" alt="증가" class="btn-svg active">
+            <img src="/src/SVG/web-button/button_button-right-plus-02-off.svg" alt="증가 비활성" class="btn-svg disabled">
+        </button>
     </div>
 
     <!-- JavaScript 파일 연결 -->
