@@ -357,6 +357,7 @@ main {
     max-width: 100%;
     margin: 0 auto;
     padding: 1rem;
+    padding-top: 0;
     background-color: #fff;
     position: relative;
     z-index: 1;
@@ -734,6 +735,9 @@ footer {
     }
     nav {
         padding-top: 1.6vw;
+    }
+    header {
+        padding: 1rem;
     }
 }
 
