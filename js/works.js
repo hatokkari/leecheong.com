@@ -20,6 +20,7 @@ $(function() {
 document.addEventListener('DOMContentLoaded', () => {
     // 모든 프로젝트를 위한 이미지 폴더 매핑
     const projectFolders = {
+        'backward-drift': 'backward-drift',
         'glass-eye': 'glass-eye',
         'the-faceless': 'the-faceless',
         'shade-of-blue': 'shade-of-blue',
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 이미지 형식 매핑
     const imageFormat = {
+        'backward-drift': 'webp',
         'glass-eye': 'webp',
         'the-faceless': 'webp',
         'shade-of-blue': 'webp',
@@ -40,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 이미지 기본 경로 매핑
     const imagePath = {
+        'backward-drift': '/src/images/photos/',
         'glass-eye': '/src/images/photos/',
         'the-faceless': '/src/images/photos/',
         'shade-of-blue': '/src/images/photos/',
