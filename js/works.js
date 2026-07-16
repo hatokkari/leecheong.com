@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Promise((resolve) => {
             // 프로젝트별 예상 이미지 수
             const expectedImageCount = {
+                'backward-drift': 62,
                 'glass-eye': 165,
                 'the-faceless': 51, 
                 'shade-of-blue': 67,
