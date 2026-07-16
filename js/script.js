@@ -6,10 +6,11 @@ $(document).ready(function(e){
 
 // 이미지 데이터
 const imageFolders = [
-    '/src/images/webp/shade-of-blue',
-    '/src/images/webp/the-faceless',
-    '/src/images/webp/glass-eye',
-    '/src/images/webp/imperfect-jeonju'
+    '/src/images/photos/shade-of-blue',
+    '/src/images/photos/the-faceless',
+    '/src/images/photos/glass-eye',
+    '/src/images/photos/imperfect-jeonju',
+    '/src/images/photos/backward-drift'
 ];
 
 // 하드코딩된 이미지 리스트
@@ -63,6 +64,18 @@ const staticImageList = {
         '/src/images/photos/imperfect-jeonju/imperfect-jeonju_8-min.webp',
         '/src/images/photos/imperfect-jeonju/imperfect-jeonju_9-min.webp',
         '/src/images/photos/imperfect-jeonju/imperfect-jeonju_10-min.webp'
+           ],
+    '/src/images/photos/backward-drift': [
+        '/src/images/photos/backward-drift/backward-drift_1-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_2-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_3-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_4-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_5-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_6-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_7-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_8-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_9-min.webp',
+        '/src/images/photos/backward-drift/backward-drift_10-min.webp'
     ]
 };
 
@@ -168,7 +181,8 @@ function loadFallbackImages() {
         { path: '/src/images/photos/shade-of-blue/shade-of-blue_1-min.webp', folder: 'shade-of-blue' },
         { path: '/src/images/photos/the-faceless/the-faceless_1-min.webp', folder: 'the-faceless' },
         { path: '/src/images/photos/glass-eye/glass-eye_1-min.webp', folder: 'glass-eye' },
-        { path: '/src/images/photos/imperfect-jeonju/imperfect-jeonju_1-min.webp', folder: 'imperfect-jeonju' }
+        { path: '/src/images/photos/imperfect-jeonju/imperfect-jeonju_1-min.webp', folder: 'imperfect-jeonju' },
+        { path: '/src/images/photos/backward-drift/backward-drift_1-min.webp', folder: 'backward-drift' }
     ];
     
     allImages = fallbackImages;
