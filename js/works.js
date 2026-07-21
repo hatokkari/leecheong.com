@@ -123,11 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // photos 섹션만 이미지 배열 섞기
-            if (!projectId.includes('book')) {
-                imagePaths = shuffleArray(imagePaths);
-            }
-            
+            // 이미지는 파일명 숫자 순서(1..N) 그대로 표출 — 셔플 안 함
+
             // 프로젝트 이미지 목록에 저장
             projectImages[projectId] = imagePaths;
             
@@ -431,15 +428,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if (images[currentIndex]) {
             images[currentIndex].style.display = 'block';
         }
-    }
-    
-    // 배열을 무작위로 섞는 함수
-    function shuffleArray(array) {
-        const newArray = [...array];
-        for (let i = newArray.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-        }
-        return newArray;
     }
 }); 
