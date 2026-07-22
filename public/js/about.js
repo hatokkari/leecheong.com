@@ -1,8 +1,5 @@
 $(function() {
-  // 기존 multilingual 초기화는 그대로 둠
-  if ($('.multilingual').length && typeof $.fn.multilingual === 'function') {
-    $('.multilingual').multilingual(['ko', 'en', 'num', 'punct']);
-  }
+  // multilingual 초기화는 BaseLayout에서 공통 처리 (중복 방지)
 
   // 서브 메뉴 동작
   $('.submenu-btn').on('click', function() {

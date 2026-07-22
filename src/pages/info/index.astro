@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import about from '../../data/about.json';
+
+// 원본의 <br> 구조 재현 (about.json = 클라 편집 대상)
+const aboutHtml = `${about.name}<br><br>${about.bio.replace(/\n/g, '<br>')}<br><br>`;
+const careerHtml = `${about.birth}<br><br>${about.cv.join('<br>')}`;
+---
+
+<BaseLayout
+  title="이청 - 소개"
+  description="이청의 포트폴리오 웹사이트 - 소개 페이지"
+  ogPath="/info/"
+  themeColor="#ffffff"
+  extraCss={['/css/about.css']}
+>
+  <SiteHeader active="info" />
+
+  <!-- 서브 메뉴 -->
+  <div class="submenu-container">
+    <nav class="submenu">
+      <div class="submenu-item">
+        <h3 class="multilingual"><button class="submenu-btn left active" data-target="about-section">소개 ABOUT</button></h3>
+      </div>
+      <div class="submenu-item">
+        <h3 class="multilingual"><button class="submenu-btn" data-target="contact-section">연락 CONTACT</button></h3>
+      </div>
+    </nav>
+  </div>
+
+  <main>
+    <!-- 소개 섹션 -->
+    <section id="about-section" class="content-section submenu-content" style="display:block;">
+      <div class="container-full multilingual">
+        <div class="about-content multilingual flex2column">
+          <div class="submenu-item2">
+            <p class="centeralign" set:html={aboutHtml} />
+          </div>
+          <div class="submenu-item2 flex2column">
+            <p class="centeralign" set:html={careerHtml} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 연락 섹션 -->
+    <section id="contact-section" class="content-section submenu-content" style="display:none;">
+      <div class="container-full multilingual">
+        <div class="contact-info">
+          <div class="contact-item">
+            <p>이메일<br><a href={`mailto:${about.email}`}>{about.email}</a></p>
+          </div>
+          <div class="contact-item">
+            <p>인스타그램<br><a href={about.instagram}>{about.instagramHandle}</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+
+  <Fragment slot="scripts">
+    <script is:inline src="/js/about.js"></script>
+  </Fragment>
+</BaseLayout>

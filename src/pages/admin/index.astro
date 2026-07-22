@@ -1,0 +1,18 @@
+---
+// Sveltia CMS 관리자 패널. Astro 라우트로 두면 dev 서버에서도 /admin/ 으로 열린다.
+// 설정은 public/admin/config.yml 로 서빙되며 아래 link 로 가리킨다.
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>이청 — 관리자</title>
+    <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+  </head>
+  <body>
+    <script is:inline src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+  </body>
+</html>
