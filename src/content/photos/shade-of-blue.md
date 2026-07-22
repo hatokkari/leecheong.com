@@ -1,0 +1,73 @@
+---
+title: "Shades of Blue"
+year: "2016"
+order: 4
+photos:
+  - /src/assets/photos/shade-of-blue/shade-of-blue_1-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_2-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_3-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_4-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_5-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_6-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_7-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_8-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_9-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_10-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_11-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_12-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_13-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_14-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_15-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_16-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_17-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_18-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_19-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_20-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_21-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_22-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_23-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_24-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_25-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_26-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_27-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_28-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_29-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_30-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_31-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_32-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_33-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_34-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_35-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_36-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_37-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_38-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_39-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_40-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_41-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_42-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_43-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_44-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_45-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_46-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_47-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_48-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_49-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_50-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_51-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_52-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_53-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_54-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_55-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_56-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_57-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_58-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_59-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_60-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_61-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_62-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_63-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_64-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_65-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_66-min.webp
+  - /src/assets/photos/shade-of-blue/shade-of-blue_67-min.webp
+---

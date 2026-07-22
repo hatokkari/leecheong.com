@@ -1,13 +1,86 @@
 ---
+import { getCollection } from 'astro:content';
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+
+// src/assets/photos 의 원본 → 빌드 시 webp 최적화. (CMS 업로드도 동일 경로로)
+const photoAssets = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/photos/**/*.{webp,jpg,jpeg,png,avif}',
+  { eager: true },
+);
+
+// 홈 모자이크 = 모든 사진 작업의 이미지 (순서는 JS가 셔플)
+const projects = (await getCollection('photos'))
+  .filter((p) => !p.data.hidden)
+  .sort((a, b) => a.data.order - b.data.order);
+const allPaths = projects.flatMap((p) => p.data.photos);
+
+const optimized = await Promise.all(
+  allPaths.map(async (path) => {
+    const mod = photoAssets[path];
+    if (!mod) return null;
+    const img = await getImage({ src: mod.default, width: 1600, format: 'webp' });
+    return img.src;
+  }),
+);
+const homeImages = optimized.filter((s): s is string => Boolean(s));
 ---
 
 <BaseLayout title="이청 - 포트폴리오" ogPath="" themeColor="#000000">
+  <!-- 초기 로딩 화면 -->
+  <div class="loading-page" id="loading-page">
+    <img src="/src/SVG/titlelogo-horizontal-white.svg" alt="이청 로고" class="loading-logo" />
+  </div>
+
   <SiteHeader />
+
   <main>
-    <p style="padding: 2rem; font-size: 1.6rem;">[Phase 1 스캐폴드 — 홈 모자이크 갤러리는 Phase 2]</p>
+    <!-- 이미지 그리드 (static-main.js가 동적 삽입) -->
+    <div class="image-grid columns-1" id="image-grid"></div>
+    <div class="loading-indicator" id="loading-indicator">
+      <div class="spinner"></div>
+    </div>
   </main>
+
   <SiteFooter />
+
+  <!-- 갤러리 모달 (라이트박스) -->
+  <div class="gallery-modal" id="gallery-modal">
+    <div class="gallery-overlay"></div>
+    <div class="gallery-container">
+      <button class="gallery-close" id="gallery-close">&times;</button>
+      <button class="gallery-prev" id="gallery-prev">◀</button>
+      <button class="gallery-next" id="gallery-next">▶</button>
+      <div class="gallery-image-container">
+        <img id="gallery-image" src="" alt="갤러리 이미지" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단 컨트롤 (그리드 열 ±, 컬러 필터) -->
+  <div class="bottom-controls">
+    <button id="grid-decrease" class="grid-btn decrease-btn">
+      <img src="/src/SVG/web-button/button_button-left-minus-01-on.svg" alt="감소" class="btn-svg active" />
+      <img src="/src/SVG/web-button/button_button-left-minus-02-off.svg" alt="감소 비활성" class="btn-svg disabled" />
+    </button>
+    <button id="color-filter-toggle" class="color-filter-btn">
+      <img src="/src/SVG/web-button/button_button-middle-filter-01-blue.svg" alt="블루 필터" class="filter-svg blue" />
+      <img src="/src/SVG/web-button/button_button-middle-filter-02-black.svg" alt="흑백 필터" class="filter-svg grayscale" />
+      <img src="/src/SVG/web-button/button_button-middle-filter-03-color.svg" alt="컬러 필터" class="filter-svg color" />
+    </button>
+    <button id="grid-increase" class="grid-btn increase-btn">
+      <img src="/src/SVG/web-button/button_button-right-plus-01-on.svg" alt="증가" class="btn-svg active" />
+      <img src="/src/SVG/web-button/button_button-right-plus-02-off.svg" alt="증가 비활성" class="btn-svg disabled" />
+    </button>
+  </div>
+
+  <Fragment slot="scripts">
+    <script is:inline define:vars={{ homeImages }}>
+      window.__HOME_IMAGES__ = homeImages;
+    </script>
+    <script is:inline src="/js/static-main.js"></script>
+  </Fragment>
 </BaseLayout>
