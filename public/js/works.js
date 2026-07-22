@@ -94,40 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 프로젝트별 이미지 목록 생성 함수
     function generateImageList(projectId) {
         return new Promise((resolve) => {
-            // 프로젝트별 예상 이미지 수
-            const expectedImageCount = {
-                'backward-drift': 62,
-                'glass-eye': 165,
-                'the-faceless': 51, 
-                'shade-of-blue': 67,
-                'imperfect-jeonju': 89,
-                'glass-eye-book': 18,
-                'shade-of-blue-book': 7
-            };
-            
-            // 이미지 경로 생성
-            let imagePaths = [];
-            for (let i = 1; i <= expectedImageCount[projectId]; i++) {
-                if (projectId.includes('book')) {
-                    // books 섹션은 webp 파일 사용, 파일명 형식이 다름
-                    if (projectId === 'glass-eye-book') {
-                        // glass-eye-book: glass-eye-book_1-min.webp 형식
-                        imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/glass-eye-book_${i}-min.${imageFormat[projectId]}`);
-                    } else if (projectId === 'shade-of-blue-book') {
-                        // shade-of-blue-book: shade-of-blue_1-min.webp 형식
-                        imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/shade-of-blue_${i}-min.${imageFormat[projectId]}`);
-                    }
-                } else {
-                    // photos 섹션은 webp 파일 사용
-                    imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/${projectFolders[projectId]}_${i}-min.${imageFormat[projectId]}`);
-                }
-            }
-            
-            // 이미지는 파일명 숫자 순서(1..N) 그대로 표출 — 셔플 안 함
+            // 이미지 목록은 Astro가 빌드 시 최적화(webp)해 window에 주입한다.
+            // (CMS 컬렉션 기반, 프론트매터 순서 그대로 — 셔플 없음)
+            const injected = (typeof window !== 'undefined' && window.__WORKS_IMAGES__) || {};
+            projectImages[projectId] = injected[projectId] || [];
 
-            // 프로젝트 이미지 목록에 저장
-            projectImages[projectId] = imagePaths;
-            
             // 프로젝트 상태 초기화
             projectState[projectId] = {
                 currentIndex: 0,
@@ -135,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadedPaths: [],
                 isLoaded: false
             };
-            
+
             resolve();
         });
     }
