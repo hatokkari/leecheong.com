@@ -1,0 +1,97 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  ogPath?: string; // og:url 경로 (예: "/works/")
+  themeColor?: string; // 홈=#000000, 나머지=#ffffff
+  extraCss?: string[]; // 페이지별 추가 스타일시트
+  bodyClass?: string;
+}
+const {
+  title,
+  description = '이청의 포트폴리오 웹사이트',
+  ogPath = '',
+  themeColor = '#ffffff',
+  extraCss = [],
+  bodyClass,
+} = Astro.props;
+const ogUrl = `https://leecheong.com${ogPath}`;
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="이청, 사진, 포트폴리오, 갤러리" />
+    <title>{title}</title>
+
+    <!-- 파비콘 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/src/favicons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/src/favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/src/favicons/favicon-16x16.png" />
+    <link rel="icon" type="image/x-icon" href="/src/favicons/favicon.ico" />
+    <link rel="shortcut icon" href="/src/favicons/favicon.ico" />
+    <meta name="theme-color" content={themeColor} />
+
+    <!-- OpenGraph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/src/favicons/opengraph.png" />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="이청 LEECHEONG" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="/src/favicons/opengraph.png" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/multilingual.css" />
+    {extraCss.map((href) => <link rel="stylesheet" href={href} />)}
+
+    <!-- Adobe Typekit (neue-haas-grotesk-display) -->
+    <link rel="stylesheet" href="https://use.typekit.net/umq6buz.css" />
+    <script is:inline>
+      (function (d) {
+        var config = { kitId: 'ovn6qqy', scriptTimeout: 3000, async: true },
+          h = d.documentElement,
+          t = setTimeout(function () {
+            h.className = h.className.replace(/\bwf-loading\b/g, '') + ' wf-inactive';
+          }, config.scriptTimeout),
+          tk = d.createElement('script'),
+          f = false,
+          s = d.getElementsByTagName('script')[0],
+          a;
+        h.className += ' wf-loading';
+        tk.src = 'https://use.typekit.net/' + config.kitId + '.js';
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+          a = this.readyState;
+          if (f || (a && a != 'complete' && a != 'loaded')) return;
+          f = true;
+          clearTimeout(t);
+          try {
+            Typekit.load(config);
+          } catch (e) {}
+        };
+        s.parentNode.insertBefore(tk, s);
+      })(document);
+    </script>
+  </head>
+  <body class={bodyClass}>
+    <slot />
+
+    <!-- jQuery + multilingual (KO/EN 타이포 전환) -->
+    <script is:inline src="/js/jquery-3.7.1.min.js"></script>
+    <script is:inline src="/js/jquery.multilingual.min.js"></script>
+    <script is:inline>
+      $(function () {
+        $('.multilingual').multilingual(['ko', 'en', 'num', 'punct']);
+      });
+    </script>
+    <slot name="scripts" />
+  </body>
+</html>
