@@ -78,7 +78,7 @@ for (const b of books) {
               <div class="project-row">
                 <div class="project-info-col">
                   <div class="flex2column-spacebetween">
-                    <h4 class="project-title">{it.data.title} <div class="project-year">{it.data.year}</div></h4>
+                    <h4 class="project-title">{it.data.title} {it.data.year && <div class="project-year">{it.data.year}</div>}</h4>
                   </div>
                   <div class="project-description"><Body /></div>
                   <div class="more-text" />
@@ -107,7 +107,7 @@ for (const b of books) {
               <div class="project-row">
                 <div class="project-info-col">
                   <div class="flex2column-spacebetween">
-                    <h4 class="project-title">{it.data.title} <div class="project-year">{it.data.year}</div></h4>
+                    <h4 class="project-title">{it.data.title} {it.data.year && <div class="project-year">{it.data.year}</div>}</h4>
                     {it.data.buyLink && (
                       <p class="button-buy"><a href={it.data.buyLink}>구매하기↗</a></p>
                     )}

@@ -2,11 +2,31 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
-import about from '../../data/about.json';
+import aboutData from '../../data/about.json';
 
-// 원본의 <br> 구조 재현 (about.json = 클라 편집 대상)
-const aboutHtml = `${about.name}<br><br>${about.bio.replace(/\n/g, '<br>')}<br><br>`;
-const careerHtml = `${about.birth}<br><br>${about.cv.join('<br>')}`;
+// 관리자에서 비운 항목은 사이트에서 사라진다. (예: 출생을 비우면 그 줄만 없어짐)
+const about = aboutData as {
+  name: string;
+  bio?: string;
+  birth?: string;
+  cv?: string[];
+  email?: string;
+  instagram?: string;
+  instagramHandle?: string;
+};
+const has = (v?: string | string[]) => (Array.isArray(v) ? v.length > 0 : !!v && v.trim() !== '');
+
+// 원본의 <br> 구조 재현 — 있는 항목만 이어 붙인다.
+const aboutHtml = [about.name, has(about.bio) ? about.bio!.replace(/\n/g, '<br>') : null]
+  .filter(Boolean)
+  .join('<br><br>') + '<br><br>';
+const careerHtml = [
+  has(about.birth) ? about.birth : null,
+  has(about.cv) ? about.cv!.join('<br>') : null,
+]
+  .filter(Boolean)
+  .join('<br><br>');
+const hasContact = has(about.email) || has(about.instagram);
 ---
 
 <BaseLayout
@@ -24,9 +44,11 @@ const careerHtml = `${about.birth}<br><br>${about.cv.join('<br>')}`;
       <div class="submenu-item">
         <h3 class="multilingual"><button class="submenu-btn left active" data-target="about-section">소개 ABOUT</button></h3>
       </div>
-      <div class="submenu-item">
-        <h3 class="multilingual"><button class="submenu-btn" data-target="contact-section">연락 CONTACT</button></h3>
-      </div>
+      {hasContact && (
+        <div class="submenu-item">
+          <h3 class="multilingual"><button class="submenu-btn" data-target="contact-section">연락 CONTACT</button></h3>
+        </div>
+      )}
     </nav>
   </div>
 
@@ -38,9 +60,11 @@ const careerHtml = `${about.birth}<br><br>${about.cv.join('<br>')}`;
           <div class="submenu-item2">
             <p class="centeralign" set:html={aboutHtml} />
           </div>
-          <div class="submenu-item2 flex2column">
-            <p class="centeralign" set:html={careerHtml} />
-          </div>
+          {careerHtml && (
+            <div class="submenu-item2 flex2column">
+              <p class="centeralign" set:html={careerHtml} />
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -49,12 +73,16 @@ const careerHtml = `${about.birth}<br><br>${about.cv.join('<br>')}`;
     <section id="contact-section" class="content-section submenu-content" style="display:none;">
       <div class="container-full multilingual">
         <div class="contact-info">
-          <div class="contact-item">
-            <p>이메일<br><a href={`mailto:${about.email}`}>{about.email}</a></p>
-          </div>
-          <div class="contact-item">
-            <p>인스타그램<br><a href={about.instagram}>{about.instagramHandle}</a></p>
-          </div>
+          {has(about.email) && (
+            <div class="contact-item">
+              <p>이메일<br><a href={`mailto:${about.email}`}>{about.email}</a></p>
+            </div>
+          )}
+          {has(about.instagram) && (
+            <div class="contact-item">
+              <p>인스타그램<br><a href={about.instagram}>{about.instagramHandle || about.instagram}</a></p>
+            </div>
+          )}
         </div>
       </div>
     </section>
