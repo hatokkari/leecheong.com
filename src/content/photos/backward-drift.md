@@ -1,6 +1,6 @@
 ---
-title: "Backward Drift"
-year: "2026"
+title: Backward Drifts
+year: '2026'
 order: 1
 photos:
   - /src/assets/photos/backward-drift/backward-drift_1-min.webp
