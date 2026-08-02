@@ -819,3 +819,100 @@ footer {
         grid-template-columns: repeat(2, 1fr);
     }
 } 
+
+/* ── 상세보기(라이트박스) 개편 (2026-08) ─────────────────────
+   기존에는 컨테이너 80% × 이미지컨테이너 80% × 이미지 90% 로 중첩 축소되어
+   확대해서 본 사진이 1열 썸네일보다 작아 보였다. 중첩을 없애고 화면을 채운다. */
+@media (min-width: 769px) {
+    .gallery-container {
+        width: 100%;
+        max-height: 100vh;
+        padding: 0 88px; /* 좌우 화살표 자리만 확보 */
+    }
+    .gallery-image-container {
+        width: 100%;
+        max-height: 90vh;
+    }
+    #gallery-image {
+        max-width: 100%;
+        max-height: 90vh;
+    }
+}
+
+/* 모바일: 사진은 화면 폭을 꽉 채우고, 조작 버튼은 하단으로 모은다.
+   좌우에 버튼이 있으면 사진이 그만큼 좁아져 '크게 본다'는 느낌이 사라진다. */
+@media (max-width: 768px) {
+    .gallery-container {
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        padding: 0;
+    }
+    .gallery-image-container {
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        padding: 0 0.4rem;
+    }
+    #gallery-image {
+        max-width: 100%;
+        max-height: calc(100vh - 9rem); /* 하단 조작 바 자리 */
+    }
+
+    .gallery-prev,
+    .gallery-next {
+        top: auto;
+        bottom: 1.4rem;
+        transform: none;
+        width: 4.4rem;
+        height: 4.4rem;
+        padding: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        opacity: 1;
+        font-size: 1.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .gallery-prev {
+        left: 50%;
+        margin-left: -5.4rem;
+    }
+    .gallery-next {
+        right: 50%;
+        margin-right: -5.4rem;
+    }
+
+    .gallery-close {
+        top: 1rem;
+        right: 1rem;
+        width: 4rem;
+        height: 4rem;
+        font-size: 2.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-container {
+        width: 100%;
+        padding: 0;
+    }
+    .gallery-prev,
+    .gallery-next {
+        width: 4rem;
+        height: 4rem;
+        font-size: 1.5rem;
+        padding: 0;
+    }
+}
+
+/* 상세보기가 열리면 뒤 배경을 확실히 눌러 사진에 집중시키고,
+   홈의 그리드 조절 버튼은 잠시 감춘다(반투명 배경 위로 비쳐 겹쳐 보였다). */
+.gallery-modal {
+    background-color: rgba(0, 0, 0, 0.97);
+}
+
+.gallery-modal.active ~ .bottom-controls {
+    display: none;
+}
