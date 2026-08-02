@@ -94,40 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 프로젝트별 이미지 목록 생성 함수
     function generateImageList(projectId) {
         return new Promise((resolve) => {
-            // 프로젝트별 예상 이미지 수
-            const expectedImageCount = {
-                'backward-drift': 62,
-                'glass-eye': 165,
-                'the-faceless': 51, 
-                'shade-of-blue': 67,
-                'imperfect-jeonju': 89,
-                'glass-eye-book': 18,
-                'shade-of-blue-book': 7
-            };
-            
-            // 이미지 경로 생성
-            let imagePaths = [];
-            for (let i = 1; i <= expectedImageCount[projectId]; i++) {
-                if (projectId.includes('book')) {
-                    // books 섹션은 webp 파일 사용, 파일명 형식이 다름
-                    if (projectId === 'glass-eye-book') {
-                        // glass-eye-book: glass-eye-book_1-min.webp 형식
-                        imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/glass-eye-book_${i}-min.${imageFormat[projectId]}`);
-                    } else if (projectId === 'shade-of-blue-book') {
-                        // shade-of-blue-book: shade-of-blue_1-min.webp 형식
-                        imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/shade-of-blue_${i}-min.${imageFormat[projectId]}`);
-                    }
-                } else {
-                    // photos 섹션은 webp 파일 사용
-                    imagePaths.push(`${imagePath[projectId]}${projectFolders[projectId]}/${projectFolders[projectId]}_${i}-min.${imageFormat[projectId]}`);
-                }
-            }
-            
-            // 이미지는 파일명 숫자 순서(1..N) 그대로 표출 — 셔플 안 함
+            // 이미지 목록은 Astro가 빌드 시 최적화(webp)해 window에 주입한다.
+            // (CMS 컬렉션 기반, 프론트매터 순서 그대로 — 셔플 없음)
+            const injected = (typeof window !== 'undefined' && window.__WORKS_IMAGES__) || {};
+            projectImages[projectId] = injected[projectId] || [];
 
-            // 프로젝트 이미지 목록에 저장
-            projectImages[projectId] = imagePaths;
-            
             // 프로젝트 상태 초기화
             projectState[projectId] = {
                 currentIndex: 0,
@@ -135,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadedPaths: [],
                 isLoaded: false
             };
-            
+
             resolve();
         });
     }
@@ -150,10 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const sliderContainer = galleryCol.querySelector('.slider-container');
-            const prevBtn = galleryCol.querySelector('.prev-btn');
-            const nextBtn = galleryCol.querySelector('.next-btn');
-            
-            if (!sliderContainer || !prevBtn || !nextBtn) {
+
+            if (!sliderContainer) {
                 resolve();
                 return;
             }
@@ -172,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 preloadImages(projectId, imagePaths).then(() => {
                     // 모든 이미지가 로딩된 후 슬라이더에 추가
                     addImagesToSlider(projectId, imagePaths);
-                    setupSliderControls(projectId, prevBtn, nextBtn);
+                    setupSliderControls(projectId);
                     projectState[projectId].isLoaded = true;
                     loadingState.loadedProjects++;
                     console.log(`📚 ${projectId} 로딩 완료 (${imagePaths.length}개 이미지)`);
@@ -181,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Photos 섹션은 초기 이미지만 로딩
                 addImagesToSlider(projectId, imagePaths.slice(0, initialLoadCount));
-                setupSliderControls(projectId, prevBtn, nextBtn);
+                setupSliderControls(projectId);
                 projectState[projectId].isLoaded = true;
                 loadingState.loadedProjects++;
                 console.log(`📸 ${projectId} 초기 로딩 완료 (${initialLoadCount}개 이미지)`);
@@ -250,132 +219,100 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSlider(projectId);
     }
 
-    // 슬라이더 컨트롤 설정 함수
-    function setupSliderControls(projectId, prevBtn, nextBtn) {
+    // 슬라이더 조작: 방향표 대신 "좌우 절반 클릭/탭 + 번호 배지"
+    // 선형으로 읽는 구조가 아니라 넘겨 보는 구조라, 화살표보다 화면을 직접 누르는 쪽이 자연스럽다.
+    function setupSliderControls(projectId) {
         const galleryCol = document.querySelector(`.project-gallery-col[data-project="${projectId}"]`);
-        const sliderContainer = galleryCol.querySelector('.slider-container');
-        
-        // 터치 스와이프 변수
+        if (!galleryCol) return;
+
+        const slider = galleryCol.querySelector('.gallery-slider');
+        const counter = galleryCol.querySelector('.slider-counter');
+        if (!slider) return;
+
+        let suppressClick = false; // 스와이프 직후 따라오는 click 무시용
+        let bumpTimer;
+        // 마우스가 있는 환경인지. 터치 기기에서는 올릴 마우스가 없으므로 배지를 옅게 상주시킨다.
+        const isTouch = !window.matchMedia('(hover: hover)').matches || 'ontouchstart' in window;
+        if (counter && isTouch) counter.classList.add('idle');
+
+        // 번호 갱신. 모바일에서는 잠깐 또렷해졌다가 다시 옅어진다(조용히 있다가 넘길 때만 반응).
+        function refreshCounter() {
+            if (!counter) return;
+            counter.textContent = String(projectState[projectId].currentIndex + 1);
+            // 넘긴 직후에는 잠깐 또렷해졌다가, 터치 기기라면 다시 옅게 돌아간다.
+            counter.classList.add('show');
+            clearTimeout(bumpTimer);
+            bumpTimer = setTimeout(() => {
+                if (isTouch || !slider.classList.contains('is-hover')) counter.classList.remove('show');
+            }, 700);
+        }
+
+        function go(delta) {
+            const st = projectState[projectId];
+            if (delta > 0) {
+                if (st.currentIndex >= st.loadedImages - 1 && !projectId.includes('book')) {
+                    loadMoreImages(projectId, 3); // 아직 안 붙인 뒷장이 있으면 먼저 채운다
+                }
+                if (st.currentIndex < st.loadedImages - 1) {
+                    st.currentIndex++;
+                    updateSlider(projectId);
+                    refreshCounter();
+                    if (!projectId.includes('book') && st.currentIndex >= st.loadedImages - 2) {
+                        loadMoreImages(projectId, 3);
+                    }
+                }
+            } else if (st.currentIndex > 0) {
+                st.currentIndex--;
+                updateSlider(projectId);
+                refreshCounter();
+            }
+        }
+
+        // 오른쪽 절반 = 다음, 왼쪽 절반 = 이전
+        slider.addEventListener('click', (e) => {
+            if (suppressClick) { suppressClick = false; return; }
+            const rect = slider.getBoundingClientRect();
+            go(e.clientX - rect.left > rect.width / 2 ? 1 : -1);
+        });
+
+        // 검은 영역에 들어올 때만 번호를 보여준다(마우스 환경)
+        slider.addEventListener('mouseenter', () => {
+            slider.classList.add('is-hover');
+            if (counter && !isTouch) counter.classList.add('show');
+        });
+        slider.addEventListener('mouseleave', () => {
+            slider.classList.remove('is-hover');
+            if (counter && !isTouch) counter.classList.remove('show');
+        });
+
+        // 모바일 스와이프도 유지
         let startX = 0;
         let currentX = 0;
-        let isDragging = false;
-        
-        // 이전 이미지 버튼 클릭 이벤트
-        prevBtn.addEventListener('click', () => {
-            if (projectState[projectId].currentIndex > 0) {
-                projectState[projectId].currentIndex--;
-                updateSlider(projectId);
+        let dragging = false;
+
+        slider.addEventListener('touchstart', (e) => {
+            startX = currentX = e.touches[0].clientX;
+            dragging = true;
+        }, { passive: true });
+
+        slider.addEventListener('touchmove', (e) => {
+            if (dragging) currentX = e.touches[0].clientX;
+        }, { passive: true });
+
+        slider.addEventListener('touchend', () => {
+            if (!dragging) return;
+            dragging = false;
+            const diff = startX - currentX;
+            if (Math.abs(diff) > 50) {
+                suppressClick = true; // 스와이프였으니 click 으로 한 번 더 넘어가지 않게
+                go(diff > 0 ? 1 : -1);
             }
         });
 
-        // 다음 이미지 버튼 클릭 이벤트
-        nextBtn.addEventListener('click', () => {
-            if (projectState[projectId].currentIndex < projectState[projectId].loadedImages - 1) {
-                projectState[projectId].currentIndex++;
-                updateSlider(projectId);
-                
-                // Photos 섹션에서 끝에 가까워지면 더 많은 이미지 로드
-                if (!projectId.includes('book') && 
-                    projectState[projectId].currentIndex >= projectState[projectId].loadedImages - 2) {
-                    loadMoreImages(projectId, 3);
-                }
-            }
-        });
-
-        // 터치 스와이프 이벤트 (모바일)
-        sliderContainer.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            isDragging = true;
-        });
-
-        sliderContainer.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            currentX = e.touches[0].clientX;
-        });
-
-        sliderContainer.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-            
-            const diffX = startX - currentX;
-            const threshold = 50; // 스와이프 감지 임계값
-            
-            if (Math.abs(diffX) > threshold) {
-                if (diffX > 0) {
-                    // 왼쪽으로 스와이프 (다음 이미지)
-                    if (projectState[projectId].currentIndex < projectState[projectId].loadedImages - 1) {
-                        projectState[projectId].currentIndex++;
-                        updateSlider(projectId);
-                        
-                        // Photos 섹션에서 끝에 가까워지면 더 많은 이미지 로드
-                        if (!projectId.includes('book') && 
-                            projectState[projectId].currentIndex >= projectState[projectId].loadedImages - 2) {
-                            loadMoreImages(projectId, 3);
-                        }
-                    }
-                } else {
-                    // 오른쪽으로 스와이프 (이전 이미지)
-                    if (projectState[projectId].currentIndex > 0) {
-                        projectState[projectId].currentIndex--;
-                        updateSlider(projectId);
-                    }
-                }
-            }
-        });
-
-        // 마우스 드래그 이벤트 (데스크톱)
-        sliderContainer.addEventListener('mousedown', (e) => {
-            startX = e.clientX;
-            isDragging = true;
-            sliderContainer.style.cursor = 'grabbing';
-        });
-
-        sliderContainer.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            currentX = e.clientX;
-        });
-
-        sliderContainer.addEventListener('mouseup', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-            sliderContainer.style.cursor = 'grab';
-            
-            const diffX = startX - currentX;
-            const threshold = 50;
-            
-            if (Math.abs(diffX) > threshold) {
-                if (diffX > 0) {
-                    // 왼쪽으로 드래그 (다음 이미지)
-                    if (projectState[projectId].currentIndex < projectState[projectId].loadedImages - 1) {
-                        projectState[projectId].currentIndex++;
-                        updateSlider(projectId);
-                        
-                        if (!projectId.includes('book') && 
-                            projectState[projectId].currentIndex >= projectState[projectId].loadedImages - 2) {
-                            loadMoreImages(projectId, 3);
-                        }
-                    }
-                } else {
-                    // 오른쪽으로 드래그 (이전 이미지)
-                    if (projectState[projectId].currentIndex > 0) {
-                        projectState[projectId].currentIndex--;
-                        updateSlider(projectId);
-                    }
-                }
-            }
-        });
-
-        // 마우스가 슬라이더를 벗어날 때
-        sliderContainer.addEventListener('mouseleave', () => {
-            if (isDragging) {
-                isDragging = false;
-                sliderContainer.style.cursor = 'grab';
-            }
-        });
+        // 최초에는 숫자만 채워둔다(마우스 환경에서는 올리기 전까지 보이지 않게)
+        if (counter) counter.textContent = String(projectState[projectId].currentIndex + 1);
     }
-    
+
     // 추가 이미지 로드 함수 (Photos 섹션용)
     function loadMoreImages(projectId, count) {
         const galleryCol = document.querySelector(`.project-gallery-col[data-project="${projectId}"]`);

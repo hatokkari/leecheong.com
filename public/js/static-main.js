@@ -37,18 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorFilterToggle = document.getElementById('color-filter-toggle');
     const loadingPage = document.getElementById('loading-page');
     
-    // 프로젝트별 사진 장수 (파일명 규칙: {이름}/{이름}_N-min.webp, N=1..장수)
-    const projects = {
-        'backward-drift': 62,
-        'glass-eye': 165,
-        'imperfect-jeonju': 89,
-        'shade-of-blue': 67,
-        'the-faceless': 51,
-    };
-    const imageList = Object.entries(projects).flatMap(([name, count]) =>
-        Array.from({ length: count }, (_, i) =>
-            `/src/images/photos/${name}/${name}_${i + 1}-min.webp`)
-    );
+    // 이미지 목록은 Astro가 빌드 시 최적화(webp)해 window에 주입한다.
+    // (기존 하드코딩/생성기 대신 CMS 컬렉션 기반)
+    const imageList = (typeof window !== 'undefined' && window.__HOME_IMAGES__) || [];
     
     // Fisher-Yates 셔플
     function shuffle(array) {

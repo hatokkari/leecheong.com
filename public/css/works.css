@@ -381,3 +381,45 @@ main {
         text-align: left;
     }
 }
+/* ── 캐러셀 조작 (2026-08 개편) ─────────────────────────────
+   방향표 대신: 좌우 절반을 눌러 넘기고, 현재 번호는 원형 배지로 보여준다.
+   표시 상태는 JS가 클래스로 정한다(마우스 환경=올렸을 때만, 터치=옅게 상주). */
+.gallery-slider {
+    cursor: pointer;
+}
+
+.slider-container {
+    cursor: inherit;
+}
+
+.slider-counter {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 12;
+    min-width: 2.6rem;
+    height: 2.6rem;
+    padding: 0 0.6rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 1.3rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease, background-color 0.25s ease;
+}
+
+/* 터치 기기: 조용히 옅게 상주 */
+.slider-counter.idle {
+    opacity: 0.35;
+}
+
+/* 마우스를 올렸을 때 / 방금 넘겼을 때 */
+.slider-counter.show {
+    opacity: 1;
+    background: #000;
+}
