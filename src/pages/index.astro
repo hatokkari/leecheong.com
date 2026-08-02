@@ -1,32 +1,16 @@
 ---
 import { getCollection } from 'astro:content';
-import { getImage } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-
-// src/assets/photos 의 원본 → 빌드 시 webp 최적화. (CMS 업로드도 동일 경로로)
-const photoAssets = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/assets/photos/**/*.{webp,jpg,jpeg,png,avif}',
-  { eager: true },
-);
+import { resolvePhotos } from '../lib/images';
 
 // 홈 모자이크 = 모든 사진 작업의 이미지 (순서는 JS가 셔플)
 const projects = (await getCollection('photos'))
   .filter((p) => !p.data.hidden)
   .sort((a, b) => a.data.order - b.data.order);
-const allPaths = projects.flatMap((p) => p.data.photos);
 
-const optimized = await Promise.all(
-  allPaths.map(async (path) => {
-    const mod = photoAssets[path];
-    if (!mod) return null;
-    const img = await getImage({ src: mod.default, width: 1600, format: 'webp' });
-    return img.src;
-  }),
-);
-const homeImages = optimized.filter((s): s is string => Boolean(s));
+const homeImages = await resolvePhotos(projects.flatMap((p) => p.data.photos));
 ---
 
 <BaseLayout title="이청 - 포트폴리오" ogPath="" themeColor="#000000">
