@@ -50,76 +50,48 @@ document.addEventListener('DOMContentLoaded', () => {
         return shuffled;
     }
     
-    // 이미지 미리 로딩
-    function preloadImages(imageList) {
-        return new Promise((resolve) => {
-            let loadedCount = 0;
-            const totalImages = imageList.length;
-            
-            // 로딩 인디케이터 표시
-            loadingIndicator.style.display = 'flex';
-            
-            imageList.forEach((src, index) => {
-                const img = new Image();
-                img.onload = () => {
-                    loadedImages[index] = {
-                        src: src,
-                        element: img,
-                        loaded: true
-                    };
-                    loadedCount++;
-                    
-                    // 모든 이미지가 로딩되면 resolve
-                    if (loadedCount === totalImages) {
-                        loadingIndicator.style.display = 'none';
-                        resolve();
-                    }
-                };
-                img.onerror = () => {
-                    // 로딩 실패 시에도 카운트 증가
-                    loadedImages[index] = {
-                        src: src,
-                        element: null,
-                        loaded: false
-                    };
-                    loadedCount++;
-                    
-                    if (loadedCount === totalImages) {
-                        loadingIndicator.style.display = 'none';
-                        resolve();
-                    }
-                };
-                img.src = src;
-            });
-        });
+    // 표시 크기에 맞는 이미지를 고르도록 알려준다(열 수가 바뀌면 다시 계산)
+    function gridSizesAttr() {
+        // 처음 벌어지는 애니메이션 동안에는 1열 상태가 잠깐 지나간다.
+        // 그때 기준으로 고르면 화면 폭짜리 큰 이미지를 받아버리므로 최종 단수를 기준으로 삼는다.
+        const cols = (isInitialLoad ? getDefaultColumns() : columnCount) || 1;
+        return `${Math.ceil(100 / cols)}vw`;
     }
-    
-    // 1. 이미지 그리드에 동적으로 이미지 삽입 (점진적 로딩 지원)
+
+    function applyGridSizes() {
+        const sizes = gridSizesAttr();
+        imageGrid.querySelectorAll('img').forEach((img) => { img.sizes = sizes; });
+    }
+
+    // 1. 이미지 그리드 구성
+    // 모든 칸을 한 번에 만들되 실제 내려받기는 브라우저의 지연 로딩에 맡긴다.
+    // (예전에는 스크립트가 화면 밖 사진까지 전부 미리 받아 수십 MB를 썼다)
     function renderImages() {
         imageGrid.innerHTML = '';
-        
-        // 로드된 이미지만 그리드에 삽입
-        const loadedImageElements = loadedImages
-            .filter(img => img && img.loaded && img.element)
-            .map(img => img.element);
-        
-        loadedImageElements.forEach((img, index) => {
+        const sizes = gridSizesAttr();
+
+        shuffledImageList.forEach((photo, index) => {
             const div = document.createElement('div');
             div.className = 'image-item';
             div.dataset.index = index;
-            
-            const imgClone = img.cloneNode(true);
-            imgClone.alt = '이청의 사진';
-            imgClone.loading = 'lazy';
-            imgClone.style.filter = getCurrentFilter();
-            div.appendChild(imgClone);
+
+            const img = document.createElement('img');
+            img.alt = '이청의 사진';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            if (photo.ss) img.srcset = photo.ss;
+            img.sizes = sizes;
+            img.src = photo.t;
+            img.dataset.full = photo.f;
+            img.style.filter = getCurrentFilter();
+
+            div.appendChild(img);
             imageGrid.appendChild(div);
         });
-        
-        // 현재 로드된 이미지 수 업데이트
-        currentLoadedCount = loadedImageElements.length;
+
+        currentLoadedCount = shuffledImageList.length;
     }
-    
+
     // 2. 이미지 삽입 후, 갤러리/애니메이션/이벤트 연결
     let allImages = [];
     let currentImageIndex = 0;
@@ -128,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const allImageItems = document.querySelectorAll('.image-item');
         allImages = Array.from(allImageItems).map(item => ({
             element: item,
-            path: item.querySelector('img').src
+            path: item.querySelector('img').dataset.full
         }));
         
         allImageItems.forEach((imageItem, idx) => {
@@ -151,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
             imageItem.addEventListener('click', () => {
-                openGallery(img.src);
+                openGallery(img.dataset.full);
             });
         });
     }
@@ -211,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 새로운 columns- 클래스 추가
         imageGrid.classList.add(`columns-${columnCount}`);
+        applyGridSizes();
         
         // 그리드 변경 시 애니메이션 재실행 방지
         const allImageItems = imageGrid.querySelectorAll('.image-item');
@@ -225,6 +198,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 화면 크기에 따른 최대 열 수 계산
+    // 처음 들어왔을 때 자리잡는 단수. 상한(getMaxColumns)과는 별개로,
+    // 사진이 너무 잘게 보이지 않는 선에서 정한다. +/- 로 더 늘릴 수 있다.
+    function getDefaultColumns() {
+        const w = window.innerWidth;
+        if (w <= 360) return 2;
+        if (w <= 480) return 3;
+        if (w <= 768) return 3;
+        if (w <= 992) return 6;
+        if (w <= 1200) return 7;
+        return 8;
+    }
+
     function getMaxColumns() {
         const screenWidth = window.innerWidth;
         
@@ -351,21 +336,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // 그리드 열 변환 애니메이션 시작
     function startGridColumnAnimation() {
         let currentColumn = 1;
-        const maxColumns = getMaxColumns();
-        
-        // 2초 동안 1열부터 최대 열까지 순차적으로 변경
+        const target = getDefaultColumns();
+
+        if (target <= 1) {
+            columnCount = 1;
+            changeGridColumns(1);
+            isInitialLoad = false;
+            return;
+        }
+
+        // 2초 동안 1열부터 기본 단수까지 순차적으로 벌어진다
         gridAnimationInterval = setInterval(() => {
             currentColumn++;
-            if (currentColumn > maxColumns-1) {
+            if (currentColumn >= target) {
                 clearInterval(gridAnimationInterval);
-                columnCount = maxColumns-1; // 최종적으로 최대 열로 설정
-                changeGridColumns(maxColumns-1);
+                columnCount = target;
+                changeGridColumns(target);
                 isInitialLoad = false;
                 return;
             }
-            
+
             changeGridColumns(currentColumn);
-        }, 2000 / (maxColumns - 1)); // 2초를 단계로 나눔
+        }, 2000 / (target - 1));
     }
     
     // 이벤트 리스너 설정
@@ -437,78 +429,15 @@ document.addEventListener('DOMContentLoaded', () => {
         updateGridButtonStates();
     }
     
-    // 점진적 이미지 로딩 함수
+    // 이미지 로딩: 그리드만 만들고 내려받기는 브라우저에 맡긴다
     async function loadImagesProgressively() {
-        const connectionInfo = isSlowConnection ? '느린 네트워크' : '일반 네트워크';
-        console.log(`🚀 점진적 이미지 로딩 시작 (${isMobile ? '모바일' : '데스크톱'} 모드, ${connectionInfo})`);
-        console.log(`📊 초기 로딩: ${initialLoadCount}개, 추가 로딩: ${loadMoreCount}개`);
-        
-        // 초기 이미지만 먼저 로드
-        const initialImages = shuffledImageList.slice(0, initialLoadCount);
-        await loadImageBatch(initialImages, 0);
-        
-        // 초기 그리드 렌더링
         renderImages();
-        
-        console.log(`✅ 초기 ${initialLoadCount}개 이미지 로딩 완료`);
-        
-        // 백그라운드에서 순차적 로딩 시작
-        startSequentialLoading();
+        console.log(`✅ 그리드 구성 완료 (${shuffledImageList.length}장, 화면에 보이는 것부터 로드)`);
     }
-    
-    // 이미지 배치 로딩 함수
-    async function loadImageBatch(imagePaths, startIndex) {
-        return new Promise((resolve) => {
-            let loadedCount = 0;
-            const totalImages = imagePaths.length;
-            
-            if (totalImages === 0) {
-                resolve();
-                return;
-            }
-            
-            imagePaths.forEach((src, index) => {
-                const img = new Image();
-                
-                img.onload = () => {
-                    const actualIndex = startIndex + index;
-                    loadedImages[actualIndex] = {
-                        src: src,
-                        element: img,
-                        loaded: true
-                    };
-                    loadedCount++;
-                    
-                    // 진행률 로그 (10개마다)
-                    if (loadedCount % 10 === 0 || loadedCount === totalImages) {
-                        const progress = ((loadedCount / totalImages) * 100).toFixed(1);
-                        console.log(`📸 배치 로딩 진행률: ${progress}% (${loadedCount}/${totalImages})`);
-                    }
-                    
-                    if (loadedCount === totalImages) {
-                        resolve();
-                    }
-                };
-                
-                img.onerror = () => {
-                    console.warn(`⚠️ 이미지 로드 실패: ${src}`);
-                    loadedImages[startIndex + index] = {
-                        src: src,
-                        element: null,
-                        loaded: false
-                    };
-                    loadedCount++;
-                    
-                    if (loadedCount === totalImages) {
-                        resolve();
-                    }
-                };
-                
-                img.src = src;
-            });
-        });
-    }
-    
+
+    // (사용 안 함) 예전 선다운로드 방식의 잔재 — 브라우저 지연 로딩으로 대체됨
+    function loadImageBatch() {}
+
     // 스크롤 리스너 설정
     function setupScrollListener() {
         let scrollTimeout;
@@ -521,66 +450,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // 순차적 로딩 시작
-    function startSequentialLoading() {
-        // 이미 모든 이미지가 로드되었거나 이미 로딩 중이면 중단
-        if (currentLoadedCount >= shuffledImageList.length || isLoading || sequentialLoadingActive) {
-            return;
-        }
-        
-        sequentialLoadingActive = true;
-        console.log(`🔄 순차적 로딩 시작 (현재: ${currentLoadedCount}/${shuffledImageList.length})`);
-        
-        // 백그라운드에서 순차적으로 로딩
-        loadNextBatch();
-    }
-    
-    // 다음 배치 로딩
-    async function loadNextBatch() {
-        if (isLoading || currentLoadedCount >= shuffledImageList.length) {
-            return;
-        }
-        
-        isLoading = true;
-        const startIndex = currentLoadedCount;
-        const endIndex = Math.min(currentLoadedCount + loadMoreCount, shuffledImageList.length);
-        const newImages = shuffledImageList.slice(startIndex, endIndex);
-        
-        console.log(`📥 순차적 로딩: ${startIndex + 1}~${endIndex} (${newImages.length}개)`);
-        
-        await loadImageBatch(newImages, startIndex);
-        currentLoadedCount = endIndex;
-        
-        // 그리드 업데이트
-        updateImageGrid();
-        
-        isLoading = false;
-        
-        const progress = ((currentLoadedCount / shuffledImageList.length) * 100).toFixed(1);
-        console.log(`✅ 순차적 로딩 완료. 총 ${currentLoadedCount}/${shuffledImageList.length}개 로드됨 (${progress}%)`);
-        
-        // 아직 로드할 이미지가 있으면 다음 배치 로딩
-        if (currentLoadedCount < shuffledImageList.length) {
-            // 네트워크 상태에 따른 지연 시간 설정
-            let delay;
-            if (isSlowConnection) {
-                delay = 2000; // 느린 네트워크에서는 더 긴 지연
-            } else if (isFastConnection) {
-                delay = 200; // 빠른 네트워크에서는 짧은 지연
-            } else {
-                delay = 500; // 일반 네트워크
-            }
-            
-            setTimeout(() => {
-                loadNextBatch();
-            }, delay);
-        } else {
-            sequentialLoadingActive = false;
-            console.log(`🎉 모든 이미지 로딩 완료!`);
-        }
-    }
-    
-    // 추가 이미지 로딩 체크 (스크롤 기반)
+    // (사용 안 함) 예전 선다운로드 방식의 잔재 — 브라우저 지연 로딩으로 대체됨
+    function startSequentialLoading() {}
+
     async function checkAndLoadMoreImages() {
         if (isLoading || currentLoadedCount >= shuffledImageList.length) {
             return;
@@ -669,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 클릭 이벤트 추가
             imageItem.addEventListener('click', () => {
-                openGallery(img.src);
+                openGallery(img.dataset.full);
             });
         });
         

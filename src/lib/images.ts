@@ -7,22 +7,38 @@ const assets = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true },
 );
 
+export interface Photo {
+  /** 격자용 작은 이미지 */
+  thumb: string;
+  /** 슬라이더 등 중간 크기 */
+  mid: string;
+  /** 확대해서 볼 때 쓰는 큰 이미지 */
+  full: string;
+  /** 브라우저가 표시 크기에 맞춰 고르도록 */
+  srcset: string;
+}
+
+const WIDTHS = { thumb: 400, mid: 800, full: 1600 } as const;
+
 /**
- * 관리자에 저장된 이미지 경로 목록 → 실제 표시할 URL 목록.
+ * 관리자에 저장된 이미지 경로 목록 → 화면에서 쓸 URL 묶음.
  *
- * 관리자에서 실수하기 쉬운 두 경우를 여기서 흡수한다.
- *  - 외부 URL을 붙여넣은 경우: 최적화는 못 하지만 그대로 보여준다(사진이 말없이 사라지지 않도록).
- *  - 파일을 찾을 수 없는 경우(경로 오타, 지원하지 않는 확장자 등): 빌드 로그에 경고를 남긴다.
- *    조용히 빠지면 사진 한 장이 없어진 걸 아무도 모른 채 배포된다.
+ * 한 장을 여러 크기로 만들어 두고 표시 크기에 맞는 것을 쓰게 한다.
+ * 격자에 1600px 원본을 그대로 넣으면 보이는 크기의 열 배짜리를 내려받게 된다.
+ *
+ * 관리자에서 실수하기 쉬운 두 경우도 여기서 흡수한다.
+ *  - 외부 URL: 최적화는 못 하지만 그대로 보여준다(사진이 말없이 사라지지 않도록).
+ *  - 파일을 찾을 수 없는 경우: 빌드 로그에 경고를 남긴다.
  */
-export async function resolvePhotos(paths: string[] = [], width = 1600): Promise<string[]> {
-  const out: string[] = [];
+export async function resolvePhotos(paths: string[] = []): Promise<Photo[]> {
+  const out: Photo[] = [];
+
   for (const path of paths) {
     if (!path) continue;
 
     if (/^https?:\/\//i.test(path)) {
       console.warn(`[이미지 안내] 외부 URL을 그대로 사용합니다(최적화 안 됨): ${path}`);
-      out.push(path);
+      out.push({ thumb: path, mid: path, full: path, srcset: '' });
       continue;
     }
 
@@ -35,8 +51,26 @@ export async function resolvePhotos(paths: string[] = [], width = 1600): Promise
       continue;
     }
 
-    const img = await getImage({ src: mod.default, width, format: 'webp' });
-    out.push(img.src);
+    const src = mod.default;
+    // 원본보다 크게 늘리지 않는다
+    const cap = (w: number) => Math.min(w, src.width || w);
+    const [thumb, mid, full] = await Promise.all([
+      getImage({ src, width: cap(WIDTHS.thumb), format: 'webp' }),
+      getImage({ src, width: cap(WIDTHS.mid), format: 'webp' }),
+      getImage({ src, width: cap(WIDTHS.full), format: 'webp' }),
+    ]);
+
+    out.push({
+      thumb: thumb.src,
+      mid: mid.src,
+      full: full.src,
+      // 격자에서 고를 후보는 작은 두 가지만. 큰 이미지는 확대해서 볼 때만 쓴다.
+      srcset: [
+        `${thumb.src} ${cap(WIDTHS.thumb)}w`,
+        `${mid.src} ${cap(WIDTHS.mid)}w`,
+      ].join(', '),
+    });
   }
+
   return out;
 }

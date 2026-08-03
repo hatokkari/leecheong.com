@@ -17,13 +17,13 @@ const worksImages: Record<string, string[]> = {};
 
 const photoItems = [];
 for (const p of photos) {
-  worksImages[p.id] = await resolvePhotos(p.data.photos);
+  worksImages[p.id] = (await resolvePhotos(p.data.photos)).map((x) => x.mid);
   const { Content } = await render(p);
   photoItems.push({ data: p.data, slug: p.id, Content });
 }
 const bookItems = [];
 for (const b of books) {
-  worksImages[b.id] = await resolvePhotos(b.data.photos);
+  worksImages[b.id] = (await resolvePhotos(b.data.photos)).map((x) => x.mid);
   const { Content } = await render(b);
   bookItems.push({ data: b.data, slug: b.id, Content });
 }
