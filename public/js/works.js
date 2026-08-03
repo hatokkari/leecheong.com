@@ -247,7 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 커서를 따라다니던 흔적을 지우고 오른쪽 위 구석으로 되돌린다(CSS 기본 위치)
         function toCorner() {
             if (!counter) return;
-            counter.classList.remove('as-cursor');
+            counter.classList.remove('as-cursor', 'point-left', 'point-right');
+            counter.classList.add('point-none');
             counter.style.left = '';
             counter.style.top = '';
             counter.style.right = '';
@@ -295,6 +296,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isCornerMode()) return;
                 const rect = area.getBoundingClientRect();
                 counter.classList.add('as-cursor');
+                // 커서가 어느 절반에 있는지에 따라 도형의 끝이 그 방향을 가리킨다
+                const toRight = e.clientX - rect.left > rect.width / 2;
+                counter.classList.toggle('point-right', toRight);
+                counter.classList.toggle('point-left', !toRight);
+                counter.classList.remove('point-none');
                 counter.style.right = 'auto';
                 counter.style.left = e.clientX - rect.left + 'px';
                 counter.style.top = e.clientY - rect.top + 'px';
