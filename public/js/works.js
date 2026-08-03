@@ -219,9 +219,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSlider(projectId);
     }
 
-    // 슬라이더 조작: 좌우 절반 클릭/탭으로 넘기고, 현재 번호를 원형 배지로 보여준다.
-    // 마우스 환경에서는 배지가 커서를 대신하고, 터치 환경에서는 사진을 가리지 않는
-    // 검은 여백 쪽에 잠깐 떴다 사라진다.
+    // 슬라이더 조작: 검은 영역(사진 둘레 여백 포함) 좌우 절반을 눌러 넘긴다.
+    // 번호 배지는 화면 종류에 따라 다르게 둔다.
+    //  - 마우스 + 넓은 화면: 배지가 커서를 대신해 따라다닌다.
+    //  - 좁은 화면 또는 터치: 오른쪽 위 구석에 고정, 넘길 때만 잠깐 보인다.
+    //    (창을 좁혀도 pointer:fine 으로 보고하는 브라우저가 있어 화면 폭도 함께 본다)
     function setupSliderControls(projectId) {
         const galleryCol = document.querySelector(`.project-gallery-col[data-project="${projectId}"]`);
         if (!galleryCol) return;
@@ -229,10 +231,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const slider = galleryCol.querySelector('.gallery-slider');
         const counter = galleryCol.querySelector('.slider-counter');
         if (!slider) return;
-        // 조작·호버 영역은 사진 둘레의 검은 여백까지 포함한 영역 전체다.
-        const area = galleryCol;
+        const area = galleryCol; // 조작·호버 영역 = 검은 영역 전체
 
-        const hasMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const isCornerMode = () =>
+            window.innerWidth <= 768 ||
+            !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
         let suppressClick = false; // 스와이프 직후 따라오는 click 무시용
         let hideTimer;
 
@@ -240,59 +244,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (counter) counter.textContent = String(projectState[projectId].currentIndex + 1);
         }
 
-        // 터치 환경에서 배지를 놓을 자리: 사진이 실제로 그려진 영역을 피해 검은 여백에 둔다.
-        // (object-fit: contain 이라 이미지 요소 크기와 그려진 크기가 다르다)
-        function placeInMargin() {
+        // 커서를 따라다니던 흔적을 지우고 오른쪽 위 구석으로 되돌린다(CSS 기본 위치)
+        function toCorner() {
             if (!counter) return;
-            const sr = area.getBoundingClientRect();
-            const gap = 10;
-            let top = gap;
-            let right = gap;
-
-            const img = Array.from(slider.querySelectorAll('.slider-container img'))
-                .find((i) => i.style.display === 'block');
-
-            if (img && img.naturalWidth && img.naturalHeight) {
-                const cs = getComputedStyle(img);
-                const padL = parseFloat(cs.paddingLeft) || 0;
-                const padR = parseFloat(cs.paddingRight) || 0;
-                const padT = parseFloat(cs.paddingTop) || 0;
-                const padB = parseFloat(cs.paddingBottom) || 0;
-                const ir = img.getBoundingClientRect();
-                const cw = ir.width - padL - padR;
-                const ch = ir.height - padT - padB;
-                if (cw > 0 && ch > 0) {
-                    const scale = Math.min(cw / img.naturalWidth, ch / img.naturalHeight);
-                    const pw = img.naturalWidth * scale;
-                    const ph = img.naturalHeight * scale;
-                    const paintedTop = ir.top - sr.top + padT + (ch - ph) / 2;
-                    const paintedRight = ir.left - sr.left + padL + (cw + pw) / 2;
-                    const bw = counter.offsetWidth || 28;
-                    const bh = counter.offsetHeight || 28;
-                    const rightBand = sr.width - paintedRight;
-
-                    if (paintedTop >= bh + gap) {
-                        // 사진 위쪽 검은 띠 안에, 사진 오른쪽 끝에 맞춰 놓는다
-                        top = Math.max(gap, (paintedTop - bh) / 2);
-                        right = Math.max(gap, rightBand);
-                    } else if (rightBand >= bw + gap) {
-                        // 위 띠가 좁으면 오른쪽 검은 띠 안에
-                        top = gap;
-                        right = Math.max(gap, (rightBand - bw) / 2);
-                    }
-                }
-            }
-
-            counter.style.left = 'auto';
-            counter.style.top = top + 'px';
-            counter.style.right = right + 'px';
+            counter.classList.remove('as-cursor');
+            counter.style.left = '';
+            counter.style.top = '';
+            counter.style.right = '';
         }
 
-        // 넘길 때마다: 번호 갱신 + (터치) 잠깐 보였다 사라짐
         function refreshCounter() {
             setNumber();
-            if (!counter || hasMouse) return;
-            placeInMargin();
+            if (!counter || !isCornerMode()) return;
+            toCorner();
             counter.classList.add('show');
             clearTimeout(hideTimer);
             hideTimer = setTimeout(() => counter.classList.remove('show'), 1400);
@@ -326,16 +290,18 @@ document.addEventListener('DOMContentLoaded', () => {
             go(e.clientX - rect.left > rect.width / 2 ? 1 : -1);
         });
 
-        if (hasMouse && counter) {
-            // 배지가 커서 자리를 대신한다
-            counter.classList.add('as-cursor');
+        if (counter) {
             const moveTo = (e) => {
+                if (isCornerMode()) return;
                 const rect = area.getBoundingClientRect();
+                counter.classList.add('as-cursor');
                 counter.style.right = 'auto';
                 counter.style.left = e.clientX - rect.left + 'px';
                 counter.style.top = e.clientY - rect.top + 'px';
             };
+
             area.addEventListener('mouseenter', (e) => {
+                if (isCornerMode()) return;
                 area.classList.add('cursor-badge');
                 moveTo(e);
                 counter.classList.add('show');
@@ -343,14 +309,19 @@ document.addEventListener('DOMContentLoaded', () => {
             area.addEventListener('mousemove', moveTo);
             area.addEventListener('mouseleave', () => {
                 area.classList.remove('cursor-badge');
-                counter.classList.remove('show');
+                if (!isCornerMode()) counter.classList.remove('show');
             });
-        } else if (counter) {
-            // 터치: 처음에 한 번 살짝 보여 조작 방식을 알린다
-            refreshCounter();
+
+            // 화면 크기가 바뀌어 모드가 달라지면 흔적을 정리한다
             window.addEventListener('resize', () => {
-                if (counter.classList.contains('show')) placeInMargin();
+                if (isCornerMode()) {
+                    area.classList.remove('cursor-badge');
+                    toCorner();
+                    counter.classList.remove('show');
+                }
             });
+
+            if (isCornerMode()) refreshCounter(); // 처음 한 번 살짝 보여 조작 방식을 알린다
         }
 
         // 스와이프도 유지
