@@ -381,9 +381,10 @@ main {
         text-align: left;
     }
 }
-/* ── 캐러셀 조작 (2026-08 개편) ─────────────────────────────
-   방향표 대신: 좌우 절반을 눌러 넘기고, 현재 번호는 원형 배지로 보여준다.
-   표시 상태는 JS가 클래스로 정한다(마우스 환경=올렸을 때만, 터치=옅게 상주). */
+/* ── 캐러셀 조작 ────────────────────────────────────────────
+   좌우 절반을 눌러 넘긴다. 현재 번호는 얇은 흰 테두리의 원으로 표시하며,
+   마우스 환경에서는 배지가 커서를 대신하고(화면에 고정된 배지 없음),
+   터치 환경에서는 사진을 가리지 않도록 검은 여백 쪽에 잠깐 떴다 사라진다. */
 .gallery-slider {
     cursor: pointer;
 }
@@ -392,34 +393,44 @@ main {
     cursor: inherit;
 }
 
+/* 마우스가 배지로 대체되는 동안에는 기본 커서를 숨긴다 */
+.gallery-slider.cursor-badge {
+    cursor: none;
+}
+
 .slider-counter {
     position: absolute;
     top: 1rem;
     right: 1rem;
     z-index: 12;
-    min-width: 2.6rem;
-    height: 2.6rem;
-    padding: 0 0.6rem;
+    box-sizing: border-box;
+    min-width: 2.8rem;
+    height: 2.8rem;
+    padding: 0 0.7rem;
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.55);
-    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.75);
     font-size: 1.3rem;
+    font-weight: 400;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.25s ease, background-color 0.25s ease;
+    transition: opacity 0.35s ease;
 }
 
-/* 터치 기기: 조용히 옅게 상주 */
-.slider-counter.idle {
-    opacity: 0.35;
+/* 커서를 따라다니는 상태(데스크톱): 위치는 JS가 정하므로 top/right 를 풀어준다 */
+.slider-counter.as-cursor {
+    top: 0;
+    right: auto;
+    left: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s ease;
 }
 
-/* 마우스를 올렸을 때 / 방금 넘겼을 때 */
 .slider-counter.show {
     opacity: 1;
-    background: #000;
 }

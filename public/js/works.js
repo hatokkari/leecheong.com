@@ -219,8 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSlider(projectId);
     }
 
-    // 슬라이더 조작: 방향표 대신 "좌우 절반 클릭/탭 + 번호 배지"
-    // 선형으로 읽는 구조가 아니라 넘겨 보는 구조라, 화살표보다 화면을 직접 누르는 쪽이 자연스럽다.
+    // 슬라이더 조작: 좌우 절반 클릭/탭으로 넘기고, 현재 번호를 원형 배지로 보여준다.
+    // 마우스 환경에서는 배지가 커서를 대신하고, 터치 환경에서는 사진을 가리지 않는
+    // 검은 여백 쪽에 잠깐 떴다 사라진다.
     function setupSliderControls(projectId) {
         const galleryCol = document.querySelector(`.project-gallery-col[data-project="${projectId}"]`);
         if (!galleryCol) return;
@@ -229,29 +230,77 @@ document.addEventListener('DOMContentLoaded', () => {
         const counter = galleryCol.querySelector('.slider-counter');
         if (!slider) return;
 
+        const hasMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
         let suppressClick = false; // 스와이프 직후 따라오는 click 무시용
-        let bumpTimer;
-        // 마우스가 있는 환경인지. 터치 기기에서는 올릴 마우스가 없으므로 배지를 옅게 상주시킨다.
-        const isTouch = !window.matchMedia('(hover: hover)').matches || 'ontouchstart' in window;
-        if (counter && isTouch) counter.classList.add('idle');
+        let hideTimer;
 
-        // 번호 갱신. 모바일에서는 잠깐 또렷해졌다가 다시 옅어진다(조용히 있다가 넘길 때만 반응).
-        function refreshCounter() {
+        function setNumber() {
+            if (counter) counter.textContent = String(projectState[projectId].currentIndex + 1);
+        }
+
+        // 터치 환경에서 배지를 놓을 자리: 사진이 실제로 그려진 영역을 피해 검은 여백에 둔다.
+        // (object-fit: contain 이라 이미지 요소 크기와 그려진 크기가 다르다)
+        function placeInMargin() {
             if (!counter) return;
-            counter.textContent = String(projectState[projectId].currentIndex + 1);
-            // 넘긴 직후에는 잠깐 또렷해졌다가, 터치 기기라면 다시 옅게 돌아간다.
+            const sr = slider.getBoundingClientRect();
+            const gap = 10;
+            let top = gap;
+            let right = gap;
+
+            const img = Array.from(slider.querySelectorAll('.slider-container img'))
+                .find((i) => i.style.display === 'block');
+
+            if (img && img.naturalWidth && img.naturalHeight) {
+                const cs = getComputedStyle(img);
+                const padL = parseFloat(cs.paddingLeft) || 0;
+                const padR = parseFloat(cs.paddingRight) || 0;
+                const padT = parseFloat(cs.paddingTop) || 0;
+                const padB = parseFloat(cs.paddingBottom) || 0;
+                const ir = img.getBoundingClientRect();
+                const cw = ir.width - padL - padR;
+                const ch = ir.height - padT - padB;
+                if (cw > 0 && ch > 0) {
+                    const scale = Math.min(cw / img.naturalWidth, ch / img.naturalHeight);
+                    const pw = img.naturalWidth * scale;
+                    const ph = img.naturalHeight * scale;
+                    const paintedTop = ir.top - sr.top + padT + (ch - ph) / 2;
+                    const paintedRight = ir.left - sr.left + padL + (cw + pw) / 2;
+                    const bw = counter.offsetWidth || 28;
+                    const bh = counter.offsetHeight || 28;
+                    const rightBand = sr.width - paintedRight;
+
+                    if (paintedTop >= bh + gap) {
+                        // 사진 위쪽 검은 띠 안에, 사진 오른쪽 끝에 맞춰 놓는다
+                        top = Math.max(gap, (paintedTop - bh) / 2);
+                        right = Math.max(gap, rightBand);
+                    } else if (rightBand >= bw + gap) {
+                        // 위 띠가 좁으면 오른쪽 검은 띠 안에
+                        top = gap;
+                        right = Math.max(gap, (rightBand - bw) / 2);
+                    }
+                }
+            }
+
+            counter.style.left = 'auto';
+            counter.style.top = top + 'px';
+            counter.style.right = right + 'px';
+        }
+
+        // 넘길 때마다: 번호 갱신 + (터치) 잠깐 보였다 사라짐
+        function refreshCounter() {
+            setNumber();
+            if (!counter || hasMouse) return;
+            placeInMargin();
             counter.classList.add('show');
-            clearTimeout(bumpTimer);
-            bumpTimer = setTimeout(() => {
-                if (isTouch || !slider.classList.contains('is-hover')) counter.classList.remove('show');
-            }, 700);
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => counter.classList.remove('show'), 1400);
         }
 
         function go(delta) {
             const st = projectState[projectId];
             if (delta > 0) {
                 if (st.currentIndex >= st.loadedImages - 1 && !projectId.includes('book')) {
-                    loadMoreImages(projectId, 3); // 아직 안 붙인 뒷장이 있으면 먼저 채운다
+                    loadMoreImages(projectId, 3);
                 }
                 if (st.currentIndex < st.loadedImages - 1) {
                     st.currentIndex++;
@@ -275,17 +324,34 @@ document.addEventListener('DOMContentLoaded', () => {
             go(e.clientX - rect.left > rect.width / 2 ? 1 : -1);
         });
 
-        // 검은 영역에 들어올 때만 번호를 보여준다(마우스 환경)
-        slider.addEventListener('mouseenter', () => {
-            slider.classList.add('is-hover');
-            if (counter && !isTouch) counter.classList.add('show');
-        });
-        slider.addEventListener('mouseleave', () => {
-            slider.classList.remove('is-hover');
-            if (counter && !isTouch) counter.classList.remove('show');
-        });
+        if (hasMouse && counter) {
+            // 배지가 커서 자리를 대신한다
+            counter.classList.add('as-cursor');
+            const moveTo = (e) => {
+                const rect = slider.getBoundingClientRect();
+                counter.style.right = 'auto';
+                counter.style.left = e.clientX - rect.left + 'px';
+                counter.style.top = e.clientY - rect.top + 'px';
+            };
+            slider.addEventListener('mouseenter', (e) => {
+                slider.classList.add('cursor-badge');
+                moveTo(e);
+                counter.classList.add('show');
+            });
+            slider.addEventListener('mousemove', moveTo);
+            slider.addEventListener('mouseleave', () => {
+                slider.classList.remove('cursor-badge');
+                counter.classList.remove('show');
+            });
+        } else if (counter) {
+            // 터치: 처음에 한 번 살짝 보여 조작 방식을 알린다
+            refreshCounter();
+            window.addEventListener('resize', () => {
+                if (counter.classList.contains('show')) placeInMargin();
+            });
+        }
 
-        // 모바일 스와이프도 유지
+        // 스와이프도 유지
         let startX = 0;
         let currentX = 0;
         let dragging = false;
@@ -304,13 +370,12 @@ document.addEventListener('DOMContentLoaded', () => {
             dragging = false;
             const diff = startX - currentX;
             if (Math.abs(diff) > 50) {
-                suppressClick = true; // 스와이프였으니 click 으로 한 번 더 넘어가지 않게
+                suppressClick = true;
                 go(diff > 0 ? 1 : -1);
             }
         });
 
-        // 최초에는 숫자만 채워둔다(마우스 환경에서는 올리기 전까지 보이지 않게)
-        if (counter) counter.textContent = String(projectState[projectId].currentIndex + 1);
+        setNumber();
     }
 
     // 추가 이미지 로드 함수 (Photos 섹션용)

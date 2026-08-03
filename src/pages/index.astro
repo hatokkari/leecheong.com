@@ -36,8 +36,12 @@ const homeImages = await resolvePhotos(projects.flatMap((p) => p.data.photos));
     <div class="gallery-overlay"></div>
     <div class="gallery-container">
       <button class="gallery-close" id="gallery-close">&times;</button>
-      <button class="gallery-prev" id="gallery-prev">◀</button>
-      <button class="gallery-next" id="gallery-next">▶</button>
+      <button class="gallery-prev" id="gallery-prev" aria-label="이전 사진">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 6 12 15 21" /></svg>
+      </button>
+      <button class="gallery-next" id="gallery-next" aria-label="다음 사진">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 3 18 12 9 21" /></svg>
+      </button>
       <div class="gallery-image-container">
         <img id="gallery-image" src="" alt="갤러리 이미지" />
       </div>

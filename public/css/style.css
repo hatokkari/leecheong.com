@@ -916,3 +916,54 @@ footer {
 .gallery-modal.active ~ .bottom-controls {
     display: none;
 }
+
+/* 상세보기 화살표: 채워진 삼각형 → 얇은 흰 선 화살표.
+   모바일에서는 원형 배경을 없애고 화면 좌우 끝에 붙여 사진을 가리지 않게 한다. */
+.gallery-prev svg,
+.gallery-next svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.gallery-prev,
+.gallery-next {
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .gallery-prev,
+    .gallery-next {
+        top: 50%;
+        bottom: auto;
+        transform: translateY(-50%);
+        background: none;
+        border-radius: 0;
+        width: 3.2rem;
+        height: 3.2rem;
+        padding: 0;
+        margin: 0;
+        opacity: 0.85;
+    }
+    .gallery-prev {
+        left: 0.6rem;
+        margin-left: 0;
+    }
+    .gallery-next {
+        right: 0.6rem;
+        margin-right: 0;
+    }
+
+    /* 하단 바가 없어졌으니 사진에 세로 공간을 더 준다 */
+    #gallery-image {
+        max-height: calc(100vh - 4rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-prev,
+    .gallery-next {
+        width: 2.8rem;
+        height: 2.8rem;
+    }
+}
