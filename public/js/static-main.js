@@ -229,21 +229,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const screenWidth = window.innerWidth;
         
         if (screenWidth <= 360) {
-            return 2;
-        } else if (screenWidth <= 480) {
-            return 3;
-        } else if (screenWidth <= 576) {
             return 4;
-        } else if (screenWidth <= 768) {
+        } else if (screenWidth <= 480) {
             return 5;
-        } else if (screenWidth <= 992) {
+        } else if (screenWidth <= 576) {
             return 6;
-        } else if (screenWidth <= 1200) {
-            return 7;
-        } else if (screenWidth <= 1400) {
+        } else if (screenWidth <= 768) {
             return 8;
-        } else {
+        } else if (screenWidth <= 992) {
             return 10;
+        } else if (screenWidth <= 1200) {
+            return 12;
+        } else if (screenWidth <= 1400) {
+            return 14;
+        } else {
+            return 16;
         }
     }
 

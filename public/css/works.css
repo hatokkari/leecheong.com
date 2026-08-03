@@ -436,3 +436,29 @@ main {
 .slider-counter.show {
     opacity: 1;
 }
+
+/* 번호 배지: 자릿수가 늘어도 원 크기는 고정 */
+.slider-counter {
+    width: 3rem;
+    min-width: 0;
+    height: 3rem;
+    padding: 0;
+    font-size: 1.2rem;
+}
+
+/* 모바일 캐러셀: 검은 여백을 줄이고, 사진 방향과 관계없이 검은 칸 크기를 고정한다.
+   (가로 사진 기준 3:2 칸을 유지하고 세로 사진은 그 안에 맞춰 들어간다) */
+@media (max-width: 768px) {
+    .project-gallery-col {
+        padding: 1.2rem;
+    }
+
+    .gallery-slider {
+        height: auto;
+        aspect-ratio: 3 / 2;
+    }
+
+    .slider-container img {
+        padding: 0;
+    }
+}

@@ -992,3 +992,66 @@ footer {
         right: 1.6rem;
     }
 }
+
+/* 홈 그리드: 열 수 선택 폭을 넓힘 (11~16단 추가) */
+.image-grid.columns-11 { grid-template-columns: repeat(11, 1fr); }
+.image-grid.columns-12 { grid-template-columns: repeat(12, 1fr); }
+.image-grid.columns-13 { grid-template-columns: repeat(13, 1fr); }
+.image-grid.columns-14 { grid-template-columns: repeat(14, 1fr); }
+.image-grid.columns-15 { grid-template-columns: repeat(15, 1fr); }
+.image-grid.columns-16 { grid-template-columns: repeat(16, 1fr); }
+
+/* 좁은 화면의 상한도 함께 완화 (기존에는 3~4단에서 막혔다) */
+@media (max-width: 576px) {
+    .image-grid.columns-7,
+    .image-grid.columns-8,
+    .image-grid.columns-9,
+    .image-grid.columns-10,
+    .image-grid.columns-11,
+    .image-grid.columns-12,
+    .image-grid.columns-13,
+    .image-grid.columns-14,
+    .image-grid.columns-15,
+    .image-grid.columns-16 {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    .image-grid.columns-5 { grid-template-columns: repeat(5, 1fr); }
+    .image-grid.columns-6 { grid-template-columns: repeat(6, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .image-grid.columns-6,
+    .image-grid.columns-7,
+    .image-grid.columns-8,
+    .image-grid.columns-9,
+    .image-grid.columns-10,
+    .image-grid.columns-11,
+    .image-grid.columns-12,
+    .image-grid.columns-13,
+    .image-grid.columns-14,
+    .image-grid.columns-15,
+    .image-grid.columns-16 {
+        grid-template-columns: repeat(5, 1fr);
+    }
+    .image-grid.columns-4 { grid-template-columns: repeat(4, 1fr); }
+    .image-grid.columns-5 { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (max-width: 360px) {
+    .image-grid.columns-5,
+    .image-grid.columns-6,
+    .image-grid.columns-7,
+    .image-grid.columns-8,
+    .image-grid.columns-9,
+    .image-grid.columns-10,
+    .image-grid.columns-11,
+    .image-grid.columns-12,
+    .image-grid.columns-13,
+    .image-grid.columns-14,
+    .image-grid.columns-15,
+    .image-grid.columns-16 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    .image-grid.columns-3 { grid-template-columns: repeat(3, 1fr); }
+    .image-grid.columns-4 { grid-template-columns: repeat(4, 1fr); }
+}
