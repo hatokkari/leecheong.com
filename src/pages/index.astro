@@ -12,7 +12,7 @@ const projects = (await getCollection('photos'))
 
 const photos = await resolvePhotos(projects.flatMap((p) => p.data.photos));
 // 격자에는 작은 이미지를, 확대해서 볼 때는 큰 이미지를 쓴다.
-const homeImages = photos.map((p) => ({ t: p.thumb, ss: p.srcset, f: p.full }));
+const homeImages = photos.map((p) => ({ t: p.thumb, ss: p.srcset, f: p.full, w: p.w, h: p.h }));
 ---
 
 <BaseLayout title="이청 - 포트폴리오" ogPath="" themeColor="#000000">

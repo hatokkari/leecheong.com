@@ -1055,3 +1055,9 @@ footer {
     .image-grid.columns-3 { grid-template-columns: repeat(3, 1fr); }
     .image-grid.columns-4 { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* 초기 로딩 중 문서 높이가 늘어날 때 브라우저가 스크롤을 따라 밀지 않도록.
+   (스크롤 앵커링이 켜져 있으면 첫 화면이 잘린 채 시작한다) */
+#image-grid {
+    overflow-anchor: none;
+}

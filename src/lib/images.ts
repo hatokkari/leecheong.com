@@ -16,6 +16,9 @@ export interface Photo {
   full: string;
   /** 브라우저가 표시 크기에 맞춰 고르도록 */
   srcset: string;
+  /** 원본 비율. 이미지가 도착하기 전에 자리를 잡아두는 데 쓴다 */
+  w: number;
+  h: number;
 }
 
 const WIDTHS = { thumb: 400, mid: 800, full: 1600 } as const;
@@ -38,7 +41,7 @@ export async function resolvePhotos(paths: string[] = []): Promise<Photo[]> {
 
     if (/^https?:\/\//i.test(path)) {
       console.warn(`[이미지 안내] 외부 URL을 그대로 사용합니다(최적화 안 됨): ${path}`);
-      out.push({ thumb: path, mid: path, full: path, srcset: '' });
+      out.push({ thumb: path, mid: path, full: path, srcset: '', w: 0, h: 0 });
       continue;
     }
 
@@ -69,6 +72,8 @@ export async function resolvePhotos(paths: string[] = []): Promise<Photo[]> {
         `${thumb.src} ${cap(WIDTHS.thumb)}w`,
         `${mid.src} ${cap(WIDTHS.mid)}w`,
       ].join(', '),
+      w: src.width,
+      h: src.height,
     });
   }
 

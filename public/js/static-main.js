@@ -79,6 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
             img.alt = '이청의 사진';
             img.loading = 'lazy';
             img.decoding = 'async';
+            // 사진이 도착하기 전에도 같은 비율의 자리를 차지하게 한다.
+            // (자리를 안 잡아두면 사진이 채워질 때마다 문서가 늘어나 스크롤이 밀린다)
+            if (photo.w && photo.h) {
+                img.width = photo.w;
+                img.height = photo.h;
+            }
             if (photo.ss) img.srcset = photo.ss;
             img.sizes = sizes;
             img.src = photo.t;
