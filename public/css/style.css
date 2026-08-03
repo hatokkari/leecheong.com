@@ -510,10 +510,24 @@ main {
 
 /* 필터는 JavaScript에서 동적으로 적용됩니다 */
 
-/* 데스크톱에서만 호버 효과 적용 */
-@media (min-width: 769px) {
-    .image-item:hover img {
-        transform: scale(1.05);
+/* 호버 효과 (마우스가 있는 넓은 화면에서만).
+   확대는 공간감을 만들어 이 사이트의 평면적인 성격과 어긋나므로 쓰지 않는다.
+   대신 '지금 걸려 있는 색상 모드에서 다른 모드로 바뀌는' 반응을 준다.
+     블루 → 흑백 / 흑백 → 블루 / 원본 → 블루
+   대상은 칸이 아니라 이미지 자체다(칸은 행 높이만큼 늘어나 사진 아래 여백까지 포함한다).
+   inline 로 지정된 색상 모드를 덮어써야 하므로 !important 가 필요하다. */
+@media (min-width: 769px) and (hover: hover) {
+    .image-item img {
+        transition: filter 0.25s ease;
+    }
+
+    .image-grid.mode-blue .image-item img:hover {
+        filter: grayscale(100%) !important;
+    }
+
+    .image-grid.mode-grayscale .image-item img:hover,
+    .image-grid.mode-none .image-item img:hover {
+        filter: sepia(100%) hue-rotate(180deg) saturate(200%) !important;
     }
 }
 
@@ -1060,4 +1074,9 @@ footer {
    (스크롤 앵커링이 켜져 있으면 첫 화면이 잘린 채 시작한다) */
 #image-grid {
     overflow-anchor: none;
+}
+
+/* 확대해서 볼 수 있다는 표시도 사진 위에서만 */
+.image-item img {
+    cursor: pointer;
 }

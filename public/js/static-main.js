@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, Math.random() * 500);
                 };
             }
-            imageItem.addEventListener('click', () => {
+            img.addEventListener('click', () => {
                 openGallery(img.dataset.full);
             });
         });
@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 새로운 columns- 클래스 추가
         imageGrid.classList.add(`columns-${columnCount}`);
+        applyFilterModeClass();
         applyGridSizes();
         
         // 그리드 변경 시 애니메이션 재실행 방지
@@ -299,6 +300,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        applyFilterModeClass();
+
         // 모든 이미지에 필터 적용 (점진적 로딩 지원)
         const allImages = document.querySelectorAll('.image-item img');
         allImages.forEach(img => {
@@ -513,6 +516,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // 현재 필터 상태 반환
+    // 현재 색상 모드를 격자 클래스로도 표시한다.
+    // 호버했을 때 '다른 모드로 바뀌는' 반응을 CSS 가 알아야 하기 때문이다.
+    function applyFilterModeClass() {
+        imageGrid.classList.remove('mode-blue', 'mode-grayscale', 'mode-none');
+        imageGrid.classList.add('mode-' + filterMode);
+    }
+
     function getCurrentFilter() {
         switch (filterMode) {
             case 'grayscale':
@@ -546,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // 클릭 이벤트 추가
-            imageItem.addEventListener('click', () => {
+            img.addEventListener('click', () => {
                 openGallery(img.dataset.full);
             });
         });
