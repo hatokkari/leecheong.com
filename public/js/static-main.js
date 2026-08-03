@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loading-indicator');
     const galleryModal = document.getElementById('gallery-modal');
     const galleryImage = document.getElementById('gallery-image');
-    const galleryClose = document.getElementById('gallery-close');
     const galleryPrev = document.getElementById('gallery-prev');
     const galleryNext = document.getElementById('gallery-next');
     const gridDecrease = document.getElementById('grid-decrease');
@@ -371,11 +370,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 이벤트 리스너 설정
     function setupEventListeners() {
-        // 갤러리 닫기 버튼
-        galleryClose.addEventListener('click', closeGallery);
-        
-        // 갤러리 오버레이 클릭 시 닫기
-        document.querySelector('.gallery-overlay').addEventListener('click', closeGallery);
+        // 사진과 화살표 바깥을 누르면 닫힌다(닫기 버튼 없음)
+        galleryModal.addEventListener('click', (e) => {
+            if (e.target.closest('#gallery-image, .gallery-prev, .gallery-next')) return;
+            closeGallery();
+        });
         
         // 갤러리 네비게이션 버튼
         galleryPrev.addEventListener('click', prevImage);

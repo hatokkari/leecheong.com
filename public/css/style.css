@@ -910,7 +910,8 @@ footer {
 /* 상세보기가 열리면 뒤 배경을 확실히 눌러 사진에 집중시키고,
    홈의 그리드 조절 버튼은 잠시 감춘다(반투명 배경 위로 비쳐 겹쳐 보였다). */
 .gallery-modal {
-    background-color: rgba(0, 0, 0, 0.97);
+    /* 뒤 배경이 살짝 비치는 정도 */
+    background-color: rgba(0, 0, 0, 0.9);
 }
 
 .gallery-modal.active ~ .bottom-controls {
@@ -966,5 +967,28 @@ footer {
     .gallery-next {
         width: 2.8rem;
         height: 2.8rem;
+    }
+}
+
+
+/* 데스크톱도 모바일과 같은 얇은 선 화살표. 위치는 좌우 끝, 세로 가운데. */
+@media (min-width: 769px) {
+    .gallery-prev,
+    .gallery-next {
+        top: 50%;
+        bottom: auto;
+        transform: translateY(-50%);
+        width: 3.6rem;
+        height: 3.6rem;
+        padding: 0;
+        background: none;
+        border-radius: 0;
+        opacity: 0.85;
+    }
+    .gallery-prev {
+        left: 1.6rem;
+    }
+    .gallery-next {
+        right: 1.6rem;
     }
 }
