@@ -934,9 +934,10 @@ footer {
 @media (max-width: 768px) {
     .gallery-prev,
     .gallery-next {
-        top: 50%;
-        bottom: auto;
-        transform: translateY(-50%);
+        top: auto;
+        /* 최하단에 붙이되 아이폰 홈 인디케이터와는 겹치지 않게 */
+        bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
+        transform: none;
         background: none;
         border-radius: 0;
         width: 3.2rem;
@@ -954,9 +955,9 @@ footer {
         margin-right: 0;
     }
 
-    /* 하단 바가 없어졌으니 사진에 세로 공간을 더 준다 */
+    /* 하단 화살표 자리만 비우고 나머지는 사진에 준다 */
     #gallery-image {
-        max-height: calc(100vh - 4rem);
+        max-height: calc(100vh - 5.5rem);
     }
 }
 

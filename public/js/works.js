@@ -229,6 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const slider = galleryCol.querySelector('.gallery-slider');
         const counter = galleryCol.querySelector('.slider-counter');
         if (!slider) return;
+        // 조작·호버 영역은 사진 둘레의 검은 여백까지 포함한 영역 전체다.
+        const area = galleryCol;
 
         const hasMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
         let suppressClick = false; // 스와이프 직후 따라오는 click 무시용
@@ -242,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // (object-fit: contain 이라 이미지 요소 크기와 그려진 크기가 다르다)
         function placeInMargin() {
             if (!counter) return;
-            const sr = slider.getBoundingClientRect();
+            const sr = area.getBoundingClientRect();
             const gap = 10;
             let top = gap;
             let right = gap;
@@ -318,9 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 오른쪽 절반 = 다음, 왼쪽 절반 = 이전
-        slider.addEventListener('click', (e) => {
+        area.addEventListener('click', (e) => {
             if (suppressClick) { suppressClick = false; return; }
-            const rect = slider.getBoundingClientRect();
+            const rect = area.getBoundingClientRect();
             go(e.clientX - rect.left > rect.width / 2 ? 1 : -1);
         });
 
@@ -328,19 +330,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // 배지가 커서 자리를 대신한다
             counter.classList.add('as-cursor');
             const moveTo = (e) => {
-                const rect = slider.getBoundingClientRect();
+                const rect = area.getBoundingClientRect();
                 counter.style.right = 'auto';
                 counter.style.left = e.clientX - rect.left + 'px';
                 counter.style.top = e.clientY - rect.top + 'px';
             };
-            slider.addEventListener('mouseenter', (e) => {
-                slider.classList.add('cursor-badge');
+            area.addEventListener('mouseenter', (e) => {
+                area.classList.add('cursor-badge');
                 moveTo(e);
                 counter.classList.add('show');
             });
-            slider.addEventListener('mousemove', moveTo);
-            slider.addEventListener('mouseleave', () => {
-                slider.classList.remove('cursor-badge');
+            area.addEventListener('mousemove', moveTo);
+            area.addEventListener('mouseleave', () => {
+                area.classList.remove('cursor-badge');
                 counter.classList.remove('show');
             });
         } else if (counter) {
@@ -356,16 +358,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentX = 0;
         let dragging = false;
 
-        slider.addEventListener('touchstart', (e) => {
+        area.addEventListener('touchstart', (e) => {
             startX = currentX = e.touches[0].clientX;
             dragging = true;
         }, { passive: true });
 
-        slider.addEventListener('touchmove', (e) => {
+        area.addEventListener('touchmove', (e) => {
             if (dragging) currentX = e.touches[0].clientX;
         }, { passive: true });
 
-        slider.addEventListener('touchend', () => {
+        area.addEventListener('touchend', () => {
             if (!dragging) return;
             dragging = false;
             const diff = startX - currentX;

@@ -385,7 +385,8 @@ main {
    좌우 절반을 눌러 넘긴다. 현재 번호는 얇은 흰 테두리의 원으로 표시하며,
    마우스 환경에서는 배지가 커서를 대신하고(화면에 고정된 배지 없음),
    터치 환경에서는 사진을 가리지 않도록 검은 여백 쪽에 잠깐 떴다 사라진다. */
-.gallery-slider {
+/* 조작 영역 = 검은 영역 전체(사진 둘레 여백 포함) */
+.project-gallery-col {
     cursor: pointer;
 }
 
@@ -394,7 +395,8 @@ main {
 }
 
 /* 마우스가 배지로 대체되는 동안에는 기본 커서를 숨긴다 */
-.gallery-slider.cursor-badge {
+.project-gallery-col.cursor-badge,
+.project-gallery-col.cursor-badge * {
     cursor: none;
 }
 
