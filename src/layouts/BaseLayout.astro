@@ -94,7 +94,10 @@ const ogUrl = `https://www.leecheong.com${ogPath}`;
         function setUnit() {
           var w = header.clientWidth || document.documentElement.clientWidth;
           if (!w) return;
-          document.documentElement.style.setProperty('--u', w * (w <= 768 ? 0.104 : 0.1) + 'px');
+          // clientWidth 는 좌우 여백을 포함하므로, 여백을 뺀 나머지에서 기준값을 잡는다
+          var pad = parseFloat(getComputedStyle(header).paddingLeft) || 0;
+          var avail = w - pad * 2;
+          document.documentElement.style.setProperty('--u', avail * (w <= 768 ? 0.1061 : 0.102) + 'px');
         }
         setUnit();
         addEventListener('resize', setUnit);

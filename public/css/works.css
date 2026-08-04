@@ -52,8 +52,8 @@ h3 .en {
     display: flex;
     width: 100%;
     flex-direction: row;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: var(--pad);
+    padding-right: var(--pad);
 }
 .submenu-item {
 display: block;
@@ -102,8 +102,8 @@ footer {
 main {
     margin-top: 0;
     padding-top: 0;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: var(--pad);
+    padding-right: var(--pad);
 }
 
 /* 프로젝트 레이아웃 스타일 */
