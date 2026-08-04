@@ -2,9 +2,14 @@
 /* 사파리는 화면을 축소하거나 좁은 화면에서 글자가 작다고 판단하면 임의로 키운다
    (자동 텍스트 확대). 이 사이트는 헤더처럼 글자 크기가 곧 레이아웃인 곳이 있어,
    글자만 부풀면 조합이 통째로 어긋난다. 지정한 크기를 그대로 쓰게 한다. */
-html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+html,
+body,
+header {
+    /* 사파리는 화면 배율이나 폭에 따라 글자를 임의로 키운다(자동 텍스트 확대).
+       이 사이트의 헤더는 글자 크기가 곧 레이아웃이라 글자만 부풀면 조합이 무너진다.
+       100% 로는 무시되는 경우가 있어 none 으로 못박는다. */
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 html, body, div, span, applet, object, iframe,
