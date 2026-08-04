@@ -194,9 +194,10 @@ header {
     top: 0;
     background-color: #fff;
     /* 헤더는 하나의 그림처럼 통째로 확대·축소되어야 한다.
-       로고·글자만 vw 이고 여백·간격은 rem(고정)이면 화면이 넓어질수록 조합이 어긋난다.
-       그래서 헤더 안의 모든 치수를 화면 폭 비례로 맞춘다(기준 1600px: 1px = 0.0625vw). */
-    padding: 0.9375vw;
+       기준값 하나(=10vw)를 헤더의 글자 크기로 두고, 안쪽 치수는 모두 그 값의 배수(em)로 쓴다.
+       그러면 브라우저가 기준값을 어떻게 계산하든 내부 비율은 항상 같이 움직인다. */
+    font-size: 10vw;
+    padding: 0.09375em;
     z-index: 100;
 }
 h2 {
@@ -208,13 +209,13 @@ h2 {
 
 .header-container {
     max-width: 100%;
-    height: 10vw;
+    height: 1em;
     display: flex;
     justify-content: space-between;
     padding: 0;
     padding-bottom: 0;
     margin-bottom: 0;
-    align-items: top;
+    align-items: flex-start;
     align-self: flex-start;
 }
 
@@ -234,16 +235,19 @@ h2 {
 .site-logo {
     height: 100%;
     width: auto;
-    align-items: top;
+    /* SVG 에 고유 크기가 없으면 브라우저마다 폭을 다르게 추정한다(사파리에서 조합이 어긋남).
+       파일에 width/height 를 넣고 여기서도 비율을 못박아 어디서나 같게 만든다. */
+    aspect-ratio: 1986.19 / 212.89;
+    display: block;
 }
 
 .header-controls {
     display: flex;
     align-items: center;
-    gap: 1.25vw;
+    gap: 0.125em;
 }
 nav {
-    padding-top: 1.3vw;
+    padding-top: 0.13em;
     height: 100%;
 }
 
@@ -251,7 +255,7 @@ nav ul {
     display: flex;
     flex-direction: column;
     list-style: none;
-    margin-left: 1.25vw;
+    margin-left: 0.125em;
     justify-content: space-between;
 }
 
@@ -262,7 +266,7 @@ nav a {
 
 }
 nav h2 {
-    font-size: 4.6vw;
+    font-size: 0.46em;
     line-height: 0.55;
     align-items: bottom;
 
