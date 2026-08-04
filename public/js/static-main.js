@@ -64,38 +64,89 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 1. 이미지 그리드 구성
-    // 모든 칸을 한 번에 만들되 실제 내려받기는 브라우저의 지연 로딩에 맡긴다.
-    // (예전에는 스크립트가 화면 밖 사진까지 전부 미리 받아 수십 MB를 썼다)
+    // 434장을 한 번에 DOM 에 넣으면 휴대폰(특히 iOS 사파리)에서 이미지 디코딩 메모리가
+    // 한계를 넘어 탭이 통째로 죽는다. 그래서 화면에 닿는 만큼만 만들어 붙이고,
+    // 아래로 내려가면 다음 묶음을 이어 붙인다.
+    const CHUNK = isMobile ? 24 : 60;
+    let renderedCount = 0;
+    let sentinel = null;
+    let sentinelObserver = null;
+
+    function createItem(photo, index) {
+        const div = document.createElement('div');
+        div.className = 'image-item';
+        div.dataset.index = index;
+
+        const img = document.createElement('img');
+        img.alt = '이청의 사진';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        // 사진이 도착하기 전에도 같은 비율의 자리를 차지하게 한다.
+        // (자리를 안 잡아두면 사진이 채워질 때마다 문서가 늘어나 스크롤이 밀린다)
+        if (photo.w && photo.h) {
+            img.width = photo.w;
+            img.height = photo.h;
+        }
+        if (photo.ss) img.srcset = photo.ss;
+        img.sizes = gridSizesAttr();
+        img.src = photo.t;
+        img.dataset.full = photo.f;
+        img.style.filter = getCurrentFilter();
+
+        div.appendChild(img);
+        return div;
+    }
+
+    function appendChunk() {
+        const total = shuffledImageList.length;
+        if (renderedCount >= total) {
+            if (sentinelObserver && sentinel) sentinelObserver.unobserve(sentinel);
+            if (sentinel) sentinel.style.display = 'none';
+            return;
+        }
+        const end = Math.min(renderedCount + CHUNK, total);
+        const frag = document.createDocumentFragment();
+        for (let i = renderedCount; i < end; i++) frag.appendChild(createItem(shuffledImageList[i], i));
+        imageGrid.appendChild(frag);
+        renderedCount = end;
+        currentLoadedCount = renderedCount;
+        setupImageEvents();
+    }
+
+    function setupEndlessAppend() {
+        if (!sentinel) {
+            sentinel = document.createElement('div');
+            sentinel.id = 'grid-sentinel';
+            sentinel.style.cssText = 'width:100%;height:1px;';
+            imageGrid.parentNode.insertBefore(sentinel, imageGrid.nextSibling);
+        }
+        sentinel.style.display = '';
+        if (sentinelObserver) sentinelObserver.disconnect();
+        // 화면 아래쪽에 가까워지면 미리 다음 묶음을 준비한다
+        sentinelObserver = new IntersectionObserver((entries) => {
+            if (!entries.some((e) => e.isIntersecting)) return;
+            appendChunk();
+            // 열이 많으면 한 묶음으로 화면이 안 채워질 수 있다.
+            // 감시점이 여전히 화면 근처면 채워질 때까지 이어 붙인다.
+            const fill = () => {
+                if (renderedCount >= shuffledImageList.length) return;
+                if (sentinel.getBoundingClientRect().top < window.innerHeight + 800) {
+                    appendChunk();
+                    setTimeout(fill, 0);
+                }
+            };
+            setTimeout(fill, 0);
+        }, { rootMargin: '800px 0px' });
+        sentinelObserver.observe(sentinel);
+    }
+
     function renderImages() {
         imageGrid.innerHTML = '';
-        const sizes = gridSizesAttr();
-
-        shuffledImageList.forEach((photo, index) => {
-            const div = document.createElement('div');
-            div.className = 'image-item';
-            div.dataset.index = index;
-
-            const img = document.createElement('img');
-            img.alt = '이청의 사진';
-            img.loading = 'lazy';
-            img.decoding = 'async';
-            // 사진이 도착하기 전에도 같은 비율의 자리를 차지하게 한다.
-            // (자리를 안 잡아두면 사진이 채워질 때마다 문서가 늘어나 스크롤이 밀린다)
-            if (photo.w && photo.h) {
-                img.width = photo.w;
-                img.height = photo.h;
-            }
-            if (photo.ss) img.srcset = photo.ss;
-            img.sizes = sizes;
-            img.src = photo.t;
-            img.dataset.full = photo.f;
-            img.style.filter = getCurrentFilter();
-
-            div.appendChild(img);
-            imageGrid.appendChild(div);
-        });
-
-        currentLoadedCount = shuffledImageList.length;
+        renderedCount = 0;
+        // 확대해서 볼 때의 앞뒤 이동은 화면에 그려진 것과 무관하게 전체를 대상으로 한다
+        allImages = shuffledImageList.map((p) => ({ path: p.f }));
+        appendChunk();
+        setupEndlessAppend();
     }
 
     // 2. 이미지 삽입 후, 갤러리/애니메이션/이벤트 연결
@@ -104,18 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function setupImageEvents() {
         const allImageItems = document.querySelectorAll('.image-item');
-        allImages = Array.from(allImageItems).map(item => ({
-            element: item,
-            path: item.querySelector('img').dataset.full
-        }));
-        
-        allImageItems.forEach((imageItem, idx) => {
+
+        allImageItems.forEach((imageItem) => {
             const img = imageItem.querySelector('img');
-            
-            // 이미 loaded 클래스가 있는 경우 애니메이션 적용하지 않음
-            if (imageItem.classList.contains('loaded')) {
-                return;
-            }
+
+            // 이미 처리한 칸은 건너뛴다(묶음을 이어 붙일 때마다 다시 도니까)
+            if (imageItem.dataset.bound === '1') return;
+            imageItem.dataset.bound = '1';
             
             if (img.complete) {
                 setTimeout(() => {

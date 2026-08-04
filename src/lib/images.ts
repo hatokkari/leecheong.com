@@ -21,7 +21,7 @@ export interface Photo {
   h: number;
 }
 
-const WIDTHS = { thumb: 400, mid: 800, full: 1600 } as const;
+const WIDTHS = { small: 240, thumb: 400, mid: 800, full: 1600 } as const;
 
 /**
  * 관리자에 저장된 이미지 경로 목록 → 화면에서 쓸 URL 묶음.
@@ -57,18 +57,21 @@ export async function resolvePhotos(paths: string[] = []): Promise<Photo[]> {
     const src = mod.default;
     // 원본보다 크게 늘리지 않는다
     const cap = (w: number) => Math.min(w, src.width || w);
-    const [thumb, mid, full] = await Promise.all([
+    const [small, thumb, mid, full] = await Promise.all([
+      getImage({ src, width: cap(WIDTHS.small), format: 'webp' }),
       getImage({ src, width: cap(WIDTHS.thumb), format: 'webp' }),
       getImage({ src, width: cap(WIDTHS.mid), format: 'webp' }),
       getImage({ src, width: cap(WIDTHS.full), format: 'webp' }),
     ]);
 
     out.push({
-      thumb: thumb.src,
+      thumb: small.src,
       mid: mid.src,
       full: full.src,
-      // 격자에서 고를 후보는 작은 두 가지만. 큰 이미지는 확대해서 볼 때만 쓴다.
+      // 격자에서 고를 후보. 휴대폰의 좁은 칸에는 240w 가 걸려 내려받기와
+      // 디코딩 메모리를 크게 줄인다(사진이 많아 메모리가 곧 안정성이다).
       srcset: [
+        `${small.src} ${cap(WIDTHS.small)}w`,
         `${thumb.src} ${cap(WIDTHS.thumb)}w`,
         `${mid.src} ${cap(WIDTHS.mid)}w`,
       ].join(', '),
