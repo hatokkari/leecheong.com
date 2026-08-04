@@ -94,7 +94,7 @@ const ogUrl = `https://www.leecheong.com${ogPath}`;
         function setUnit() {
           var w = header.clientWidth || document.documentElement.clientWidth;
           if (!w) return;
-          header.style.setProperty('--u', w * (w <= 768 ? 0.104 : 0.1) + 'px');
+          document.documentElement.style.setProperty('--u', w * (w <= 768 ? 0.104 : 0.1) + 'px');
         }
         setUnit();
         addEventListener('resize', setUnit);
