@@ -111,7 +111,11 @@ const ogUrl = `https://www.leecheong.com${ogPath}`;
     <script is:inline src="/js/jquery.multilingual.min.js"></script>
     <script is:inline>
       $(function () {
-        $('.multilingual').multilingual(['ko', 'en', 'num', 'punct']);
+        // 빌드 때 미리 감싼 페이지는 건너뛴다(개발 서버 등 감싸지 않은 경우만 처리)
+        var pending = $('.multilingual').filter(function () {
+          return !this.querySelector('span[class^="ml-"]');
+        });
+        if (pending.length) pending.multilingual(['ko', 'en', 'num', 'punct']);
       });
     </script>
     <slot name="scripts" />

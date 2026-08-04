@@ -482,16 +482,20 @@ main {
     }
 
     /* 번호는 더 작게, 위쪽 여백과 오른쪽 여백을 같은 값으로 */
-    .slider-counter {
-        width: 1.8rem;
-        height: 1.8rem;
+    /* 모바일은 원형 테두리 없이 숫자만 둔다.
+       상자가 아니라 숫자 획을 기준으로 위·오른쪽 여백이 같아 보이도록 값을 다르게 준다
+       (글자 위쪽 여유 때문에 위 여백은 그만큼 덜 준다). */
+    .slider-counter,
+    .slider-counter.point-none,
+    .slider-counter.point-left,
+    .slider-counter.point-right {
+        width: auto;
+        height: auto;
+        background-image: none;
+        line-height: 1;
         font-size: 1rem;
-        top: 0.4rem;
-        right: 0.4rem;
-    }
-
-    .slider-counter.point-none {
-        width: 1.8rem;
+        top: 0.6rem;
+        right: 0.72rem;
     }
 
     .gallery-slider {
