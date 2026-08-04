@@ -84,6 +84,25 @@ const ogUrl = `https://www.leecheong.com${ogPath}`;
   <body class={bodyClass}>
     <slot />
 
+    <!-- 헤더 기준값: vw 대신 실제 렌더 폭에서 잡는다.
+         사파리는 화면 배율이 걸리면 vw 를 배율 전 폭으로 계산해서(레이아웃은 배율 후 폭)
+         헤더만 몇 배로 커진다. 실제 폭을 재면 배율과 무관하게 항상 맞는다. -->
+    <script is:inline>
+      (function () {
+        var header = document.querySelector('header');
+        if (!header) return;
+        function setUnit() {
+          var w = header.clientWidth || document.documentElement.clientWidth;
+          if (!w) return;
+          header.style.setProperty('--u', w * (w <= 768 ? 0.104 : 0.1) + 'px');
+        }
+        setUnit();
+        addEventListener('resize', setUnit);
+        addEventListener('orientationchange', setUnit);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(setUnit);
+      })();
+    </script>
+
     <!-- jQuery + multilingual (KO/EN 타이포 전환) -->
     <script is:inline src="/js/jquery-3.7.1.min.js"></script>
     <script is:inline src="/js/jquery.multilingual.min.js"></script>
