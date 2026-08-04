@@ -194,10 +194,10 @@ header {
     top: 0;
     background-color: #fff;
     /* 헤더는 하나의 그림처럼 통째로 확대·축소되어야 한다.
-       기준값 하나(=10vw)를 헤더의 글자 크기로 두고, 안쪽 치수는 모두 그 값의 배수(em)로 쓴다.
-       그러면 브라우저가 기준값을 어떻게 계산하든 내부 비율은 항상 같이 움직인다. */
-    font-size: 10vw;
-    padding: 0.09375em;
+       기준값(--u) 하나를 두고 안쪽 치수를 모두 그 배수로 계산한다.
+       글자 크기나 퍼센트 높이에 기대면 브라우저마다(특히 사파리) 다르게 풀리므로 쓰지 않는다. */
+    --u: 10vw;
+    padding: calc(var(--u) * 0.09375);
     z-index: 100;
 }
 h2 {
@@ -209,7 +209,7 @@ h2 {
 
 .header-container {
     max-width: 100%;
-    height: 1em;
+    height: var(--u);
     display: flex;
     justify-content: space-between;
     padding: 0;
@@ -233,10 +233,9 @@ h2 {
     width: auto;
 }
 .site-logo {
-    height: 100%;
+    /* 퍼센트 높이는 부모 사슬을 타느라 브라우저마다 갈린다. 기준값에서 바로 잡는다. */
+    height: var(--u);
     width: auto;
-    /* SVG 에 고유 크기가 없으면 브라우저마다 폭을 다르게 추정한다(사파리에서 조합이 어긋남).
-       파일에 width/height 를 넣고 여기서도 비율을 못박아 어디서나 같게 만든다. */
     aspect-ratio: 1986.19 / 212.89;
     display: block;
 }
@@ -244,10 +243,10 @@ h2 {
 .header-controls {
     display: flex;
     align-items: center;
-    gap: 0.125em;
+    gap: calc(var(--u) * 0.125);
 }
 nav {
-    padding-top: 0.13em;
+    padding-top: calc(var(--u) * 0.13);
     height: 100%;
 }
 
@@ -255,7 +254,7 @@ nav ul {
     display: flex;
     flex-direction: column;
     list-style: none;
-    margin-left: 0.125em;
+    margin-left: calc(var(--u) * 0.125);
     justify-content: space-between;
 }
 
@@ -266,7 +265,7 @@ nav a {
 
 }
 nav h2 {
-    font-size: 0.46em;
+    font-size: calc(var(--u) * 0.46);
     line-height: 0.55;
     align-items: bottom;
 
@@ -764,26 +763,9 @@ footer {
         width: 36px;
         height: 36px;
     }
-    .header-container {
-        height: 10.4vw;
-    }
-    .site-logo {
-        height: 100%;
-        width: auto;
-    }
-    .header-controls {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    nav ul {
-        margin-left: 1rem;
-    }
-    nav {
-        padding-top: 1.6vw;
-    }
+    /* 좁은 화면에서는 기준값만 바꾼다. 안쪽 비율은 그대로 따라온다. */
     header {
-        padding: 1rem;
+        --u: 10.4vw;
     }
 }
 
