@@ -1,4 +1,12 @@
 /* 확장된 CSS 리셋 (Normalize.css 기반) */
+/* 사파리는 화면을 축소하거나 좁은 화면에서 글자가 작다고 판단하면 임의로 키운다
+   (자동 텍스트 확대). 이 사이트는 헤더처럼 글자 크기가 곧 레이아웃인 곳이 있어,
+   글자만 부풀면 조합이 통째로 어긋난다. 지정한 크기를 그대로 쓰게 한다. */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
