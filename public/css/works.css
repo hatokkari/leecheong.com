@@ -470,23 +470,23 @@ main {
 /* 모바일 캐러셀: 검은 여백을 줄이고, 사진 방향과 관계없이 검은 칸 크기를 고정한다.
    (가로 사진 기준 3:2 칸을 유지하고 세로 사진은 그 안에 맞춰 들어간다) */
 @media (max-width: 768px) {
-    /* 위쪽에 배지가 앉을 검은 띠를 확보한다.
-       가로 사진은 3:2 칸을 거의 꽉 채워 여백이 없어 번호가 사진 위에 겹쳤다. */
+    /* 사진 둘레 검은 여백은 상하좌우를 같게 둔다.
+       번호가 앉을 자리를 만들기 위해 여백을 조금 넉넉히 잡고 사진을 그만큼 줄인다. */
     .project-gallery-col {
-        padding: 3rem 1.2rem 1.2rem;
+        padding: 2.6rem;
     }
 
-    /* 번호는 더 작게, 모서리에 붙여 사진과 떨어뜨린다 */
+    /* 번호는 더 작게, 위쪽 여백과 오른쪽 여백을 같은 값으로 */
     .slider-counter {
-        width: 3.2rem;
-        height: 2.3rem;
-        font-size: 1.15rem;
-        top: 0.35rem;
-        right: 0.5rem;
+        width: 1.8rem;
+        height: 1.8rem;
+        font-size: 1rem;
+        top: 0.4rem;
+        right: 0.4rem;
     }
 
     .slider-counter.point-none {
-        width: 2.3rem;
+        width: 1.8rem;
     }
 
     .gallery-slider {
