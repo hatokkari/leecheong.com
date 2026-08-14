@@ -16,6 +16,8 @@ const {
   bodyClass,
 } = Astro.props;
 const ogUrl = `https://www.leecheong.com${ogPath}`;
+// 메신저·SNS 미리보기는 상대 경로를 못 읽는 곳이 많아 절대 주소로 준다.
+const ogImage = 'https://www.leecheong.com/src/favicons/opengraph.png';
 ---
 
 <!doctype html>
@@ -38,14 +40,14 @@ const ogUrl = `https://www.leecheong.com${ogPath}`;
     <!-- OpenGraph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="/src/favicons/opengraph.png" />
+    <meta property="og:image" content={ogImage} />
     <meta property="og:url" content={ogUrl} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="이청 LEECHEONG" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content="/src/favicons/opengraph.png" />
+    <meta name="twitter:image" content={ogImage} />
 
     <!-- CSS -->
     <link rel="stylesheet" href="/css/style.css" />

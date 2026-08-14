@@ -1,0 +1,28 @@
+---
+// 없는 주소로 들어왔을 때. 사이트 껍데기는 그대로 두고 안내 한 줄만 둔다.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+
+<BaseLayout title="이청 - 페이지를 찾을 수 없음" description="요청한 주소가 없습니다." themeColor="#ffffff">
+  <SiteHeader />
+
+  <main class="multilingual">
+    <p class="notfound">
+      요청한 주소가 없습니다. <a href="/">처음 화면</a>으로 이동하세요.
+    </p>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>
+
+<style is:global>
+  .notfound {
+    padding: 6rem 0 12rem;
+  }
+  .notfound a {
+    color: inherit;
+    text-decoration: underline;
+  }
+</style>
