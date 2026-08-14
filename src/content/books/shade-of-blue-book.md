@@ -1,7 +1,7 @@
 ---
 title: "Shades of Blue"
 year: "2016"
-order: 2
+order: 20
 photos:
   - /src/assets/books/shade-of-blue/shade-of-blue_1-min.webp
   - /src/assets/books/shade-of-blue/shade-of-blue_2-min.webp

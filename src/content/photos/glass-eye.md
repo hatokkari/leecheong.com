@@ -1,7 +1,7 @@
 ---
 title: "유리눈동자"
 year: "2025"
-order: 2
+order: 20
 photos:
   - /src/assets/photos/glass-eye/glass-eye_1-min.webp
   - /src/assets/photos/glass-eye/glass-eye_2-min.webp

@@ -1,7 +1,7 @@
 ---
 title: "불온전 전주"
 year: "2015"
-order: 5
+order: 50
 photos:
   - /src/assets/photos/imperfect-jeonju/imperfect-jeonju_1-min.webp
   - /src/assets/photos/imperfect-jeonju/imperfect-jeonju_2-min.webp

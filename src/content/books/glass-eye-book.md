@@ -1,7 +1,7 @@
 ---
 title: "유리눈동자"
 year: "2025"
-order: 1
+order: 10
 buyLink: "http://buly.kr/GE8Ot4m"
 photos:
   - /src/assets/books/glass-eye/glass-eye-book_1-min.webp

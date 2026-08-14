@@ -1,7 +1,7 @@
 ---
 title: "The Faceless"
 year: "2022"
-order: 3
+order: 30
 photos:
   - /src/assets/photos/the-faceless/the-faceless_1-min.webp
   - /src/assets/photos/the-faceless/the-faceless_2-min.webp
