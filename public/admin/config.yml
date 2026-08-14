@@ -11,6 +11,17 @@ backend:
 # local_backend 는 localhost 전용(GitHub 로그인 없이 로컬 폴더로 테스트). 프로덕션에선 자동 무시.
 local_backend: true
 
+# 올릴 때 브라우저에서 미리 변환한다. 저장소에는 변환본만 들어가고 원본은 남지 않는다.
+# (커밋된 뒤에 줄이면 git 이력에 원본이 그대로 남아 용량이 줄지 않는다.)
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 2400
+
 media_folder: "src/assets"
 public_folder: "/src/assets"
 
