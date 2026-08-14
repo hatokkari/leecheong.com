@@ -199,12 +199,24 @@ main {
 }
 
 .slider-container img {
+    /* 사진을 겹쳐 두고 투명도로 바꾼다. 예전처럼 display 를 껐다 켜면 전환이 걸리지 않는다. */
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     padding: 1rem;
     object-fit: contain;
-    flex-shrink: 0;
-    transition: opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+}
+
+.slider-container img.is-current {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slider-container img { transition: none; }
 }
 
 .slider-controls {

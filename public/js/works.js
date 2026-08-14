@@ -205,11 +205,9 @@ document.addEventListener('DOMContentLoaded', () => {
             img.alt = `${projectId} image ${index + 1}`;
             img.dataset.index = index;
             
-            // 첫 번째 이미지만 표시
+            // 첫 번째 이미지만 보이게
             if (index === 0) {
-                img.style.display = 'block';
-            } else {
-                img.style.display = 'none';
+                img.classList.add('is-current');
             }
             
             sliderContainer.appendChild(img);
@@ -380,7 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const img = document.createElement('img');
             img.src = projectImageList[index];
             img.alt = `${projectId} image ${index + 1}`;
-            img.style.display = 'none';
             img.dataset.index = index;
             
             sliderContainer.appendChild(img);
@@ -400,14 +397,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const images = sliderContainer.querySelectorAll('img');
         const currentIndex = projectState[projectId].currentIndex;
         
-        // 모든 이미지 숨기기
-        images.forEach(img => {
-            img.style.display = 'none';
-        });
-        
-        // 현재 인덱스 이미지만 표시
+        // 현재 사진만 보이게 (나머지는 투명도 0 으로 물러난다)
+        images.forEach(img => img.classList.remove('is-current'));
         if (images[currentIndex]) {
-            images[currentIndex].style.display = 'block';
+            images[currentIndex].classList.add('is-current');
         }
     }
 }); 
