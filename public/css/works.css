@@ -32,7 +32,8 @@ section {
 }
 
 h3 {
-    font-weight: 900;
+    /* 900 이었으나 예전 Adobe 킷엔 900 이 없어 늘 700(75 Bold)으로 그려졌다. 900 이 든 킷으로 바꿔도 같게 고정 */
+    font-weight: 700;
     font-size: 3.6rem;
     letter-spacing: -0.2rem;
 }
